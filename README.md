@@ -1,4 +1,4 @@
-# Example App - Ambiente Docker
+# E-Chruch-Backend - Ambiente Docker
 
 Este projeto utiliza Docker e Docker Compose para facilitar o desenvolvimento e execução do ambiente Laravel + Node.js.
 
