@@ -21,6 +21,8 @@ return new class extends Migration
             $table->string('quarter');
             $table->string('city');
             $table->string('state');
+            $table->timestamps();
+
         });
     }
 
