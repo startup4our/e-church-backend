@@ -11,18 +11,17 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('users', function (Blueprint $table) {
+        Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->string('name');
-            $table->string('email')->unique();
-            $table->string('photo_path')->nullable();
-            $table->date('birthday');
-            $table->timestamp('email_verified_at')->nullable();
-            $table->string('password');
-            $table->rememberToken();
+            $table->string('name'); 
+            $table->string('destination'); 
+            $table->text('description')->nullable();
+            
+            // Foreign key for the song
+            $table->foreignId('song_id')->constrained('songs')->onDelete('cascade');
+
             $table->timestamps();
         });
-
     }
 
     /**
@@ -30,6 +29,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('users');
+        Schema::dropIfExists('links');
     }
 };
