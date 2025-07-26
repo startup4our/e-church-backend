@@ -27,6 +27,16 @@ return new class extends Migration
             $table->boolean('read_music')->default(false);
             $table->boolean('update_music')->default(false);
             $table->boolean('delete_music')->default(false);
+            // Role CRUD
+            $table->boolean('create_role')->default(false);
+            $table->boolean('read_role')->default(false);
+            $table->boolean('update_role')->default(false);
+            $table->boolean('delete_role')->default(false);
+            // Area CRUD
+            $table->boolean('create_area')->default(false);
+            $table->boolean('read_area')->default(false);
+            $table->boolean('update_area')->default(false);
+            $table->boolean('delete_area')->default(false);
             // Others
             $table->boolean('manage_users')->default(true);
             $table->boolean('manage_church_settings')->default(true);

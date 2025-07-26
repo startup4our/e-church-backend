@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('user_scale', function (Blueprint $table){
             $table->foreignId('schedule_id')->constrained('schedule');
             $table->foreignId('user_id')->constrained('users');
-            $table->enum('status',['confirmado', 'troca solicitada']);
+            $table->enum('status',['confirmado', 'troca solicitada'])->default('confirmado');
         });
     }
 
