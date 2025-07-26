@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('songs', function (Blueprint $table) {
+        Schema::create('song', function (Blueprint $table) {
             $table->id();
             $table->string('cover_path'); // path to cover image
             $table->string('name');

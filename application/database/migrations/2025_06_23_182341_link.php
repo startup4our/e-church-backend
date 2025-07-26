@@ -13,10 +13,10 @@ return new class extends Migration
     {
         Schema::create('links', function (Blueprint $table) {
             $table->id();
-            $table->string('name'); 
-            $table->string('destination'); 
+            $table->string('name');
+            $table->string('destination');
             $table->text('description')->nullable();
-            
+
             // Foreign key for the song
             $table->foreignId('song_id')->constrained('songs')->onDelete('cascade');
 
