@@ -17,7 +17,7 @@ return new class extends Migration
 
             // Foreign key to songs (assuming songs.id is string)
             $table->foreignId('song_id')
-                  ->constrained('songs', 'id')
+                  ->constrained('song', 'id')
                   ->onDelete('cascade');
 
             $table->timestamps();
