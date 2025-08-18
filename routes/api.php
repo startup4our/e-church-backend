@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AreaController;
+use App\Http\Controllers\UnavailabilityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -15,7 +16,7 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
+Route::middleware(['auth:sanctum'])->get('/v1/user', function (Request $request) {
     return $request->user();
 });
 
@@ -27,4 +28,6 @@ Route::prefix('v1')->group(function () {
     // PUT /api/v1/areas/{id}
     // DELETE /api/v1/areas/{id}
     Route::apiResource('areas', AreaController::class);
+    Route::apiResource('unavailability', UnavailabilityController::class);
+
 });
