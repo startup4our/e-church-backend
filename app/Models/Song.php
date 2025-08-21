@@ -9,7 +9,7 @@ class Song extends Model
 {
     use HasFactory;
 
-    protected $table = 'Song';
+    protected $table = 'song';
     protected $fillable = [
         'cover_path',
         'name',

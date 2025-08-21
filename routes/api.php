@@ -4,6 +4,8 @@ use App\Http\Controllers\AreaController;
 use App\Http\Controllers\UnavailabilityController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ChurchController;
+use App\Http\Controllers\SongController;
 
 /*
 |--------------------------------------------------------------------------
@@ -30,4 +32,6 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('areas', AreaController::class);
     Route::apiResource('unavailability', UnavailabilityController::class);
 
+    Route::apiResource('churches', ChurchController::class);
+    Route::apiResource('songs', SongController::class);
 });
