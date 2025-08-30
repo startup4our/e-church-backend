@@ -12,7 +12,8 @@ class Chat extends Model
     protected $table = 'chat';
     protected $fillable = [
         'name',
-        'destination',
-        'chatable',
+        'description',
+        'chatable_id',
+        'chatable_type',
     ];
 }
