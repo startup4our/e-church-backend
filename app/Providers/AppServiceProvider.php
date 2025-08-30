@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Services\ChatService;
+use App\Services\Interfaces\IChatService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IChurchService;
@@ -23,6 +25,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IChurchService::class, ChurchService::class);
         $this->app->bind(ISongService::class, SongService::class);
         $this->app->bind(IRoleService::class, RoleService::class);
+        $this->app->bind(IChatService::class, ChatService::class);
     }
 
     /**
