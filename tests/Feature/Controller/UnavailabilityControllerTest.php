@@ -14,7 +14,7 @@ class UnavailabilityControllerTest extends TestCase
     public function test_store_creates_unavailability()
     {
         $user = User::factory()->create();
-
+        $this->authenticate($user);
         $response = $this->postJson('api/v1/unavailability', [
             'user_id' => $user->id,
             'weekday' => 1,

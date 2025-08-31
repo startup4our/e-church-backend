@@ -15,7 +15,10 @@ class DateExceptionControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('api/v1/date-exception', [
+        // autentica o usuário e adiciona o header Authorization: Bearer
+        $this->authenticate($user);
+
+        $response = $this->postJson('/api/v1/date-exception', [
             'exception_date' => "2025-01-01",
             'shift' => 'morning',
             'justification' => 'Motivo teste',
@@ -23,6 +26,7 @@ class DateExceptionControllerTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+
         $this->assertDatabaseHas('date_exceptions', [
             'user_id' => $user->id,
             'shift' => 'morning',

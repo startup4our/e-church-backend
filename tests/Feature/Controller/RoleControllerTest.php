@@ -4,6 +4,7 @@ namespace Tests\Feature\Http\Controllers;
 
 use App\Models\Area;
 use App\Models\Role;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -13,6 +14,9 @@ class RoleControllerTest extends TestCase
 
     public function test_index_returns_roles()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         Role::factory()->count(2)->create();
 
         $response = $this->getJson('/api/v1/roles');
@@ -23,6 +27,9 @@ class RoleControllerTest extends TestCase
 
     public function test_show_returns_role()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $role = Role::factory()->create();
 
         $response = $this->getJson("/api/v1/roles/{$role->id}");
@@ -33,6 +40,9 @@ class RoleControllerTest extends TestCase
 
     public function test_store_creates_role()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $area = Area::factory()->create();
 
         $data = [
@@ -51,6 +61,9 @@ class RoleControllerTest extends TestCase
 
     public function test_update_modifies_role()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $role = Role::factory()->create(['name' => 'Antiga']);
 
         $response = $this->putJson("/api/v1/roles/{$role->id}", [
@@ -65,6 +78,9 @@ class RoleControllerTest extends TestCase
 
     public function test_destroy_deletes_role()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $role = Role::factory()->create();
 
         $response = $this->deleteJson("/api/v1/roles/{$role->id}");

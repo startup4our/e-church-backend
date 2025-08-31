@@ -17,6 +17,9 @@ class MessageControllerTest extends TestCase
         $user = User::factory()->create();
         $chat = Chat::factory()->create();
 
+        // autentica o usuário e adiciona o header Authorization: Bearer
+        $this->authenticate($user);
+
         $response = $this->postJson('/api/v1/message', [
             'content' => 'Hello world',
             'sent_at' => now()->toDateTimeString(),
@@ -25,6 +28,7 @@ class MessageControllerTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+
         $this->assertDatabaseHas('messages', [
             'content' => 'Hello world',
             'chat_id' => $chat->id,
