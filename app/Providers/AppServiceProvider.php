@@ -19,6 +19,8 @@ use App\Services\Interfaces\ISongService;
 use App\Services\Interfaces\IRoleService;
 use App\Services\AreaService;
 use App\Services\ChurchService;
+use App\Services\Interfaces\ILinkService;
+use App\Services\LinkService;
 use App\Services\SongService;
 use App\Services\RoleService;
 
@@ -38,7 +40,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IMessageService::class, MessageService::class);
         $this->app->bind(IDateExceptionService::class, DateExceptionService::class);
         $this->app->bind(IPermissionService::class, PermissionService::class);
-
+        $this->app->bind(ILinkService::class, LinkService::class);
     }
 
     /**
