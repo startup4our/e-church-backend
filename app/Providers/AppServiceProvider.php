@@ -7,8 +7,10 @@ use App\Services\DateExceptionService;
 use App\Services\Interfaces\IChatService;
 use App\Services\Interfaces\IDateExceptionService;
 use App\Services\Interfaces\IMessageService;
+use App\Services\Interfaces\IPermissionService;
 use App\Services\Interfaces\IUnavailabilityService;
 use App\Services\MessageService;
+use App\Services\PermissionService;
 use App\Services\UnavailabilityService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Interfaces\IAreaService;
@@ -35,6 +37,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IUnavailabilityService::class, UnavailabilityService::class);
         $this->app->bind(IMessageService::class, MessageService::class);
         $this->app->bind(IDateExceptionService::class, DateExceptionService::class);
+        $this->app->bind(IPermissionService::class, PermissionService::class);
 
     }
 
