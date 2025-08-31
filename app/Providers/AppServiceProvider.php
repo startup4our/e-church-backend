@@ -4,7 +4,9 @@ namespace App\Providers;
 
 use App\Services\ChatService;
 use App\Services\Interfaces\IChatService;
+use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\IUnavailabilityService;
+use App\Services\MessageService;
 use App\Services\UnavailabilityService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Interfaces\IAreaService;
@@ -29,6 +31,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IRoleService::class, RoleService::class);
         $this->app->bind(IChatService::class, ChatService::class);
         $this->app->bind(IUnavailabilityService::class, UnavailabilityService::class);
+        $this->app->bind(IMessageService::class, MessageService::class);
+
     }
 
     /**
