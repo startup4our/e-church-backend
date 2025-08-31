@@ -21,7 +21,7 @@ class ChurchControllerTest extends TestCase
         $response = $this->getJson('/api/v1/churches');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(2);
+                 ->assertJsonCount(3); //3 because userfactory creates one too
     }
 
     public function test_show_returns_church()
