@@ -3,7 +3,9 @@
 namespace App\Providers;
 
 use App\Services\ChatService;
+use App\Services\DateExceptionService;
 use App\Services\Interfaces\IChatService;
+use App\Services\Interfaces\IDateExceptionService;
 use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\IUnavailabilityService;
 use App\Services\MessageService;
@@ -32,6 +34,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IChatService::class, ChatService::class);
         $this->app->bind(IUnavailabilityService::class, UnavailabilityService::class);
         $this->app->bind(IMessageService::class, MessageService::class);
+        $this->app->bind(IDateExceptionService::class, DateExceptionService::class);
 
     }
 
