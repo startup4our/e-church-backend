@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\Permission;
+use App\Models\User;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -11,15 +13,10 @@ class PermissionFactory extends Factory
 {
     protected $model = Permission::class;
 
-    /**
-     * Define the model's default state.
-     *
-     * @return array<string, mixed>
-     */
     public function definition(): array
     {
         return [
-            'user_id' => \App\Models\User::factory(),
+            'user_id' => User::factory(),
             'create_scale' => $this->faker->boolean(30),
             'read_scale' => $this->faker->boolean(80),
             'update_scale' => $this->faker->boolean(50),
