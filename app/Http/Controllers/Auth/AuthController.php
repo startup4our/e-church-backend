@@ -21,21 +21,29 @@ class AuthController extends Controller
         return $this->respondWithToken($token);
     }
 
-    public function register(Request $request)
-    {
+    public function register(Request $request){
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
-            'birthday' => 'required|date'
+            'birthday' => 'required|date',
+            'church_id' => 'required|exists:churches,id',
         ]);
 
-        $user = User::create($data);
+        $user = User::create([
+            'name' => $data['name'],
+            'email' => $data['email'],
+            'password' => bcrypt($data['password']),
+            'birthday' => $data['birthday'],
+            'church_id' => $data['church_id'],
+            'status' => \App\Enums\UserStatus::WAITING_APPROVAL, // sempre WA
+        ]);
 
         $token = Auth::login($user);
 
         return $this->respondWithToken($token);
     }
+
 
     public function logout()
     {
