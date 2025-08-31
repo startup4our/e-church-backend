@@ -15,6 +15,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => Hash::make('password'),
+            'status' => \App\Enums\UserStatus::ACTIVE,
         ]);
 
         $response = $this->postJson('/api/v1/auth/login', [
@@ -34,6 +35,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => Hash::make('password'),
+            'status' => \App\Enums\UserStatus::ACTIVE,
         ]);
 
         $response = $this->postJson('/api/v1/auth/login', [
