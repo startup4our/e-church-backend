@@ -1,0 +1,116 @@
+<?php
+
+namespace Tests\Unit\Services;
+
+use App\Enums\ScheduleType;
+use App\Repositories\ScheduleRepository;
+use Illuminate\Database\Eloquent\Collection;
+use Tests\TestCase;
+use App\Models\Schedule;
+use App\Services\ScheduleService;
+use Mockery;
+
+class ScheduleServiceTest extends TestCase
+{
+    private $repositoryMock;
+    private $service;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->repositoryMock = Mockery::mock(ScheduleRepository::class);
+        $this->service = new ScheduleService($this->repositoryMock);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
+    }
+
+    public function test_create_schedule()
+    {
+        $data = [
+            'name' => 'Test Schedule',
+            'description' => 'Description',
+            'local' => 'Church',
+            'date_time' => '2025-09-01 10:00:00',
+            'observation' => 'Note',
+            'type' => ScheduleType::LOUVOR,
+            'aproved' => false,
+            'user_creator' => 1
+        ];
+        $expected = new Schedule($data);
+
+        $this->repositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->with($data)
+            ->andReturn($expected);
+
+        $result = $this->service->create($data);
+
+        $this->assertEquals($expected, $result);
+    }
+
+    public function test_get_all_schedules()
+    {
+        $schedules = new Collection([
+            new Schedule(['name' => 'A']),
+            new Schedule(['name' => 'B'])
+        ]);
+
+        $this->repositoryMock
+            ->shouldReceive('getAll')
+            ->once()
+            ->andReturn($schedules);
+
+        $result = $this->service->getAll();
+
+        $this->assertEquals($schedules, $result);
+    }
+
+    public function test_get_schedule_by_id()
+    {
+        $schedule = new Schedule(['name' => 'Test']);
+
+        $this->repositoryMock
+            ->shouldReceive('getById')
+            ->once()
+            ->with(1)
+            ->andReturn($schedule);
+
+        $result = $this->service->getById(1);
+
+        $this->assertEquals($schedule, $result);
+    }
+
+    public function test_update_schedule()
+    {
+        $data = ['name' => 'Updated'];
+        $schedule = new Schedule(['name' => 'Updated']);
+
+        $this->repositoryMock
+            ->shouldReceive('update')
+            ->once()
+            ->with(1, $data)
+            ->andReturn($schedule);
+
+        $result = $this->service->update(1, $data);
+
+        $this->assertEquals($schedule, $result);
+    }
+
+    public function test_delete_schedule()
+    {
+        $this->repositoryMock
+            ->shouldReceive('delete')
+            ->once()
+            ->with(1)
+            ->andReturn(true);
+
+        $result = $this->service->delete(1);
+
+        $this->assertTrue($result);
+    }
+}
