@@ -17,6 +17,7 @@ use App\Http\Controllers\Auth\NewPasswordController;
 use App\Http\Controllers\Auth\PasswordResetLinkController;
 use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\LinkController;
+use App\Http\Controllers\RecordingController;
 
 /*
 |--------------------------------------------------------------------------
@@ -50,6 +51,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('date-exception', DateExceptionController::class);
     Route::apiResource('permission', PermissionController::class);
     Route::apiResource('links', LinkController::class);
+    Route::apiResource('recordings', RecordingController::class);
 
 });
 
