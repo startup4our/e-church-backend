@@ -22,7 +22,7 @@ class UnavailabilityControllerTest extends TestCase
         ]);
 
         $response->assertStatus(201);
-        $this->assertDatabaseHas('api/v1/unavailability', [
+        $this->assertDatabaseHas('unavailability', [
             'user_id' => $user->id,
             'weekday' => 1,
             'shift' => 'manha',
