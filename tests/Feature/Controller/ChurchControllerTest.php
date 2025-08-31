@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Models\Church;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,6 +13,9 @@ class ChurchControllerTest extends TestCase
 
     public function test_index_returns_churches()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         Church::factory()->count(2)->create();
 
         $response = $this->getJson('/api/v1/churches');
@@ -22,6 +26,9 @@ class ChurchControllerTest extends TestCase
 
     public function test_show_returns_church()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $church = Church::factory()->create();
 
         $response = $this->getJson("/api/v1/churches/{$church->id}");
@@ -32,6 +39,9 @@ class ChurchControllerTest extends TestCase
 
     public function test_store_creates_church()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $data = [
             'name'       => 'Igreja Central',
             'cep'        => '37500-000',
@@ -53,6 +63,9 @@ class ChurchControllerTest extends TestCase
 
     public function test_update_modifies_church()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $church = Church::factory()->create(['name' => 'Antiga']);
 
         $response = $this->putJson("/api/v1/churches/{$church->id}", [
@@ -67,6 +80,9 @@ class ChurchControllerTest extends TestCase
 
     public function test_destroy_deletes_church()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $church = Church::factory()->create();
 
         $response = $this->deleteJson("/api/v1/churches/{$church->id}");

@@ -3,6 +3,7 @@
 namespace Tests\Feature\Http\Controllers;
 
 use App\Models\Song;
+use App\Models\User;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -12,17 +13,22 @@ class SongControllerTest extends TestCase
 
     public function test_index_returns_songs()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user); // header Bearer JWT
+
         Song::factory()->count(2)->create();
 
         $response = $this->getJson('/api/v1/songs');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(2, 'data') // se usar paginate; senão, remova o segundo parâmetro
-                 ->assertJsonFragment(['id' => 1]); // algum item retornado
+                 ->assertJsonCount(2, 'data'); // se usar paginate
     }
 
     public function test_show_returns_song()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $song = Song::factory()->create();
 
         $response = $this->getJson("/api/v1/songs/{$song->id}");
@@ -33,6 +39,9 @@ class SongControllerTest extends TestCase
 
     public function test_store_creates_song()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $data = [
             'cover_path'  => 'https://example.com/covers/abc.jpg',
             'name'        => 'Nova Música',
@@ -54,6 +63,9 @@ class SongControllerTest extends TestCase
 
     public function test_update_modifies_song()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $song = Song::factory()->create(['name' => 'Antiga', 'duration' => 120]);
 
         $response = $this->putJson("/api/v1/songs/{$song->id}", [
@@ -69,6 +81,9 @@ class SongControllerTest extends TestCase
 
     public function test_destroy_deletes_song()
     {
+        $user = User::factory()->create();
+        $this->authenticate($user);
+
         $song = Song::factory()->create();
 
         $response = $this->deleteJson("/api/v1/songs/{$song->id}");

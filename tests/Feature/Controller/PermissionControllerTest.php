@@ -15,7 +15,10 @@ class PermissionControllerTest extends TestCase
     {
         $user = User::factory()->create();
 
-        $response = $this->postJson('api/v1/permission', [
+        // autentica e adiciona header Authorization: Bearer
+        $this->authenticate($user);
+
+        $response = $this->postJson('/api/v1/permission', [
             'user_id' => $user->id,
             'create_scale' => true,
             'read_scale' => true,
@@ -23,6 +26,7 @@ class PermissionControllerTest extends TestCase
         ]);
 
         $response->assertStatus(201);
+
         $this->assertDatabaseHas('permission', [
             'user_id' => $user->id,
             'create_scale' => true,
