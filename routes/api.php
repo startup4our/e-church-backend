@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AreaController;
 use App\Http\Controllers\ChatController;
+use App\Http\Controllers\DateExceptionController;
 use App\Http\Controllers\MessageController;
 use App\Http\Controllers\UnavailabilityController;
 use Illuminate\Http\Request;
@@ -45,6 +46,7 @@ Route::prefix('v1')->group(function () {
     Route::apiResource('roles', RoleController::class);
     Route::apiResource('chats', ChatController::class);
     Route::apiResource('message', MessageController::class);
+    Route::apiResource('date-exception', DateExceptionController::class);
 
 });
 
