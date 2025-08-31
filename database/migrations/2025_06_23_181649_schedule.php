@@ -22,6 +22,7 @@ return new class extends Migration
             $table->boolean('aproved')->default(false);
             $table->foreignId('user_creator')
                     ->constrained('users');
+            $table->timestamps();
         });
     }
 
