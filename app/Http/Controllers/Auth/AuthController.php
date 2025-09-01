@@ -27,7 +27,7 @@ class AuthController extends Controller
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8|confirmed',
             'birthday' => 'required|date',
-            'church_id' => 'required|exists:churches,id',
+            'church_id' => 'required|exists:church,id',
         ]);
 
         $user = User::create([
