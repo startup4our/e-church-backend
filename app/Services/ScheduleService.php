@@ -40,4 +40,10 @@ class ScheduleService implements IScheduleService
     {
         return $this->repository->delete($id);
     }
+
+    public function generateSchedule(int $scheduleId, array $areas, int $maxUsers)
+    {
+        // Delegar toda a lógica para o repository
+        return $this->repository->generateSchedule($scheduleId, $areas, $maxUsers);
+    }
 }
