@@ -1,0 +1,165 @@
+INSERT INTO church (name, cep, street, number, complement, quarter, city, state)
+VALUES
+('Grace Church', '12345-678', 'Main Street',  'Suite 1', 'Downtown', 'Springfield', 'SP'),
+('Faith Chapel', '23456-789', 'Oak Avenue', '200', NULL, 'Uptown', 'Riverside', 'RJ'),
+('Hope Fellowship', '34567-890', 'Pine Road', '50', NULL, 'Midtown', 'Lakeside', 'MG');
+
+-- Usuários (20) todos associados à Grace Church
+INSERT INTO "users" (name, email, password, church_id, status, birthday)
+VALUES
+('John Doe','john@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Jane Smith','jane@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Alice Johnson','alice@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Bob Brown','bob@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Carol White','carol@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('David Black','david@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Eve Green','eve@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Frank Gray','frank@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Grace Blue','grace@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Hank Violet','hank@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Ivy Red','ivy@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Jack Orange','jack@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Kate Pink','kate@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Leo Indigo','leo@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Mia Silver','mia@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Nate Gold','nate@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Olivia Bronze','olivia@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Paul Copper','paul@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Quinn Platinum','quinn@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Rita Diamond','rita@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01');
+
+
+-- 3️⃣ Permissões (20, 1 por usuário)
+-- Permissões usando SELECT para relacionar pelo nome do usuário
+INSERT INTO permission (
+    user_id,
+    create_scale, read_scale, update_scale, delete_scale,
+    create_music, read_music, update_music, delete_music,
+    create_role, read_role, update_role, delete_role,
+    create_area, read_area, update_area, delete_area,
+    manage_users, manage_church_settings, manage_app_settings
+)
+VALUES
+(
+    (SELECT id FROM "users" WHERE name='Erick A Bonifacio'),
+    true,true,true,true,  -- escala
+    true,true,true,true,  -- música
+    true,true,true,true,  -- função
+    true,true,true,true,  -- área
+    true,true,true        -- gerenciamento
+),
+(
+    (SELECT id FROM "users" WHERE name='Jane Smith'),
+    true,true,false,false,
+    true,false,false,false,
+    false,false,false,false,
+    true,false,false,false,
+    false,false,false
+),
+(
+    (SELECT id FROM "users" WHERE name='Alice Johnson'),
+    false,true,true,true,
+    true,true,true,true,
+    true,true,true,true,
+    true,true,true,true,
+    true,true,true
+),
+(
+    (SELECT id FROM "users" WHERE name='Bob Brown'),
+    true,false,false,false,
+    false,false,false,false,
+    false,false,false,false,
+    false,false,false,false,
+    true,false,false
+),
+(
+    (SELECT id FROM "users" WHERE name='Carol White'),
+    false,true,false,true,
+    false,true,false,true,
+    false,true,false,true,
+    false,true,false,true,
+    false,true,true
+),
+-- continue o mesmo padrão para os outros usuários
+(
+    (SELECT id FROM "users" WHERE name='David Black'),
+    true,true,false,false,
+    true,true,false,false,
+    false,false,false,false,
+    true,false,false,false,
+    true,false,false
+),
+(
+    (SELECT id FROM "users" WHERE name='Eve Green'),
+    true,false,true,true,
+    false,false,true,true,
+    true,false,true,false,
+    false,true,false,true,
+    false,false,false
+),
+(
+    (SELECT id FROM "users" WHERE name='Frank Gray'),
+    false,true,true,false,
+    true,true,false,false,
+    false,true,true,false,
+    true,false,true,false,
+    true,true,false
+),
+(
+    (SELECT id FROM "users" WHERE name='Grace Blue'),
+    true,false,false,true,
+    false,true,false,true,
+    true,false,false,true,
+    false,true,false,true,
+    false,true,false
+),
+(
+    (SELECT id FROM "users" WHERE name='Hank Violet'),
+    false,true,true,false,
+    true,false,true,false,
+    false,true,true,false,
+    true,false,true,false,
+    true,false,true
+);
+
+--  Áreas (4)
+INSERT INTO area (name, description)
+VALUES
+('Music','Responsible for music and worship'),
+('Administration','Admin tasks and scheduling'),
+('Youth Ministry','Youth activities and events'),
+('Outreach','Community outreach programs');
+
+-- Roles com associação a area_id via SELECT
+INSERT INTO role (name, description, area_id)
+VALUES
+('Worship Leader','Leads worship sessions',(SELECT id FROM area WHERE name='Music')),
+('Secretary','Administrative tasks',(SELECT id FROM area WHERE name='Administration')),
+('Usher','Assists attendees',(SELECT id FROM area WHERE name='Youth Ministry')),
+('Treasurer','Handles finances',(SELECT id FROM area WHERE name='Administration')),
+('Youth Leader','Leads youth ministry',(SELECT id FROM area WHERE name='Youth Ministry'));
+
+
+-- Associação user <-> area usando SELECT para relacionar
+INSERT INTO user_area (area_id, user_id)
+VALUES
+((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='John Doe')),
+((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='Jane Smith')),
+((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Alice Johnson')),
+((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Bob Brown')),
+((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='Carol White')),
+((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='David Black')),
+((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Eve Green')),
+((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Frank Gray')),
+((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='Grace Blue')),
+((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='Hank Violet')),
+((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Ivy Red')),
+((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Jack Orange')),
+((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='Kate Pink')),
+((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='Leo Indigo')),
+((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Mia Silver')),
+((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Nate Gold')),
+((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='Olivia Bronze')),
+((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='Paul Copper')),
+((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Quinn Platinum')),
+((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Rita Diamond'));
