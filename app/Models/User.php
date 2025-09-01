@@ -63,4 +63,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->belongsTo(Church::class);
     }
+
+    public function areas()
+    {
+        return $this->hasMany(UserArea::class, 'user_id', 'id');
+    }
 }
