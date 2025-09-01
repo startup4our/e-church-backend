@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\ScheduleType;
+use App\Services\Interfaces\IPermissionService;
 use App\Services\Interfaces\IScheduleService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
@@ -10,10 +11,12 @@ use Illuminate\Validation\Rule;
 class ScheduleController extends Controller
 {
     private IScheduleService $scheduleService;
+    private IPermissionService $permissionService;
 
-    public function __construct(IScheduleService $scheduleService)
+    public function __construct(IScheduleService $scheduleService, IPermissionService $permissionService)
     {
         $this->scheduleService = $scheduleService;
+        $this->permissionService = $permissionService;
     }
 
     public function index()
@@ -62,5 +65,36 @@ class ScheduleController extends Controller
     {
         $this->scheduleService->delete($id);
         return response()->json(null, 204);
+    }
+
+    public function generate(Request $request, int $scheduleId)
+    {
+        $request->validate([
+            'user_id' => 'required|integer',
+            'areas' => 'required|array|min:1',
+            'max_users' => 'required|integer|min:1',
+        ]);
+
+        $userId = $request->user_id;
+
+        // Verificar permissão
+        if (!$this->permissionService->canCreateScale($userId)) {
+            return response()->json(['error' => 'Unauthorized'], 403);
+        }
+
+        $selectedUsers = $this->scheduleService->generateSchedule(
+            $scheduleId,
+            $request->areas,
+            $request->max_users
+        );
+
+        return response()->json([
+            'schedule_id' => $scheduleId,
+            'selected_users' => $selectedUsers->map(fn($u) => [
+                'id' => $u->id,
+                'name' => $u->name,
+                'email' => $u->email
+            ])
+        ]);
     }
 }

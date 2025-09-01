@@ -31,4 +31,38 @@ class PermissionRepository
     {
         $permission->delete();
     }
+
+    public function getPermissionsByUser(int $userId): array
+    {
+        $permission = Permission::query()
+            ->where('user_id', $userId)
+            ->first();
+
+        if (!$permission) {
+            return [];
+        }
+
+        // Retorna todas as colunas de permissão como array associativo
+        return $permission->only([
+            'create_scale',
+            'read_scale',
+            'update_scale',
+            'delete_scale',
+            'create_music',
+            'read_music',
+            'update_music',
+            'delete_music',
+            'create_role',
+            'read_role',
+            'update_role',
+            'delete_role',
+            'create_area',
+            'read_area',
+            'update_area',
+            'delete_area',
+            'manage_users',
+            'manage_church_settings',
+            'manage_app_settings',
+        ]);
+    }
 }

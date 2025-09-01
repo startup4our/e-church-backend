@@ -55,6 +55,9 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('recordings', RecordingController::class);
     Route::apiResource('schedules', ScheduleController::class);
 
+    Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
+
+
 });
 
 Route::prefix('v1/auth')->group(function () {
