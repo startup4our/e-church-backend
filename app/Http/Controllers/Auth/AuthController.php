@@ -18,7 +18,13 @@ class AuthController extends Controller
             return response()->json(['error' => 'Credenciais inválidas'], 401);
         }
 
-        return $this->respondWithToken($token);
+        $user = Auth::user(); // pega o usuário logado
+
+        return response()->json([
+            'user' => $user,
+            'access_token' => $token,
+            'token_type' => 'bearer'
+        ]);
     }
 
     public function register(Request $request){
