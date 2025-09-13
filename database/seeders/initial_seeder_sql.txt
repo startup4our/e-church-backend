@@ -1,13 +1,13 @@
 INSERT INTO church (name, cep, street, number, complement, quarter, city, state)
 VALUES
-('Grace Church', '12345-678', 'Main Street',  'Suite 1', 'Downtown', 'Springfield', 'SP'),
+('Grace Church', '12345-678', 'Main Street', '100',   'Suite 1', 'Downtown', 'Springfield', 'SP'),
 ('Faith Chapel', '23456-789', 'Oak Avenue', '200', NULL, 'Uptown', 'Riverside', 'RJ'),
 ('Hope Fellowship', '34567-890', 'Pine Road', '50', NULL, 'Midtown', 'Lakeside', 'MG');
 
 -- Usuários (20) todos associados à Grace Church
 INSERT INTO "users" (name, email, password, church_id, status, birthday)
 VALUES
-('John Doe','john@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
+('Erick Bonifacio','erickalvarengabonifacio@hotmail.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
 ('Jane Smith','jane@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
 ('Alice Johnson','alice@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
 ('Bob Brown','bob@example.com','$2y$12$jz.MGBNlpMOmOPXWpQR9quRTs8bZnrIdhJ8080Y6grjGRe/467Uz2',(SELECT id FROM church WHERE name='Grace Church'),'A', '2000-01-01'),
@@ -41,7 +41,7 @@ INSERT INTO permission (
 )
 VALUES
 (
-    (SELECT id FROM "users" WHERE name='Erick A Bonifacio'),
+    (SELECT id FROM "users" WHERE name='Erick Bonifacio'),
     true,true,true,true,  -- escala
     true,true,true,true,  -- música
     true,true,true,true,  -- função
@@ -143,7 +143,7 @@ VALUES
 -- Associação user <-> area usando SELECT para relacionar
 INSERT INTO user_area (area_id, user_id)
 VALUES
-((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='John Doe')),
+((SELECT id FROM area WHERE name='Music'), (SELECT id FROM "users" WHERE name='Erick Bonifacio')),
 ((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='Jane Smith')),
 ((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Alice Johnson')),
 ((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Bob Brown')),
