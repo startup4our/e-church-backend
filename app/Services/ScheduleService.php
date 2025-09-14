@@ -32,7 +32,7 @@ class ScheduleService implements IScheduleService
         
         $chat = $this->chatRepository->create([
             'name' => $schedule->name,
-            'description' => `Chat da escala '{$schedule->name}'`,
+            'description' => "Chat da escala '{$schedule->name}'",
             'chatable_id' => $schedule->id,
             'chatable_type' => ChatType::SCALE
         ]);
