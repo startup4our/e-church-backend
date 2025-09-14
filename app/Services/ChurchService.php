@@ -46,4 +46,9 @@ class ChurchService implements IChurchService
     {
         return $this->repository->delete($id);
     }
+
+    public function getChurchesForRegister(): array
+    {
+        return $this->repository->getChurchesForRegister();
+    }
 }

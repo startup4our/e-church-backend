@@ -3,6 +3,7 @@
 namespace App\Repositories;
 
 use App\Models\Church;
+use App\Models\DTO\ChurchDTO;
 use Illuminate\Database\Eloquent\Collection;
 
 class ChurchRepository
@@ -37,7 +38,7 @@ class ChurchRepository
 
     public function existsDuplicate(array $data, ?string $ignoreId = null): bool
     {
-        $q = \App\Models\Church::query();
+        $q = Church::query();
 
         if (!empty($data['name']))   $q->where('name',   $data['name']);
         if (!empty($data['cep']))    $q->where('cep',    $data['cep']);
@@ -46,5 +47,16 @@ class ChurchRepository
         if ($ignoreId) $q->where('id', '!=', $ignoreId);
 
         return $q->exists();
+    }
+
+    public function getChurchesForRegister(): array
+    {
+        return Church::select('id', 'name')
+        ->get()
+        ->map(fn ($church) => new ChurchDTO(
+            id: $church->id,
+            name: $church->name
+        ))
+        ->toArray();
     }
 }

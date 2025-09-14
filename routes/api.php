@@ -35,6 +35,7 @@ Route::middleware(['auth:api'])->get('/v1/user', function (Request $request) {
     return $request->user();
 });
 
+//private routes
 Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     // Create RESTful endpoints to area
     // GET /api/v1/areas
@@ -56,9 +57,9 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('schedules', ScheduleController::class);
 
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
-
-
 });
+
+
 
 Route::prefix('v1/auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
