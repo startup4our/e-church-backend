@@ -2,11 +2,13 @@
 
 namespace App\Http\Controllers\Auth;
 
+use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use App\Models\User;
+use Log;
 
 class AuthController extends Controller
 {
@@ -15,19 +17,33 @@ class AuthController extends Controller
         $credentials = $request->only('email', 'password');
 
         if (! $token = Auth::attempt($credentials)) {
-            return response()->json(['error' => 'Credenciais inválidas'], 401);
+            Log::warning("User tried to login, but its credencials are invalid");
+            return response()->json(['message' => 'Credenciais inválidas'], 401);
         }
 
-        $user = Auth::user(); // pega o usuário logado
+        $user = Auth::user();
 
-        return response()->json([
-            'user' => $user,
-            'access_token' => $token,
-            'token_type' => 'bearer'
-        ]);
+        switch ($user->status) {
+            case UserStatus::INACTIVE:
+                Log::warning('User tried to login, but it is inactive');
+                return response()->json(['message' => 'Conta inativa. Contate o administrador.'], 401);
+
+            case UserStatus::WAITING_APPROVAL:
+                Log::warning("User tried to login, but it is waiting for admin approval of church [{$user->church_id}]");
+                return response()->json(['message' => 'Conta aguardando aprovação.'], 401);
+
+            case UserStatus::ACTIVE:
+                Log::info("User [{$user->id}] has made login");
+                return response()->json([
+                    'user' => $user,
+                    'access_token' => $token,
+                    'token_type' => 'bearer'
+                ]);
+        }
     }
 
     public function register(Request $request){
+        Log::info('Request to register user');
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
@@ -42,7 +58,7 @@ class AuthController extends Controller
             'password' => bcrypt($data['password']),
             'birthday' => $data['birthday'],
             'church_id' => $data['church_id'],
-            'status' => \App\Enums\UserStatus::WAITING_APPROVAL, // sempre WA
+            'status' => UserStatus::WAITING_APPROVAL, // sempre WA
         ]);
 
         $token = Auth::login($user);

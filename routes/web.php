@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\ChurchController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -15,4 +16,8 @@ use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return ['Laravel' => app()->version()];
+});
+
+Route::prefix('api/v1')->group(function () {
+    Route::get('church/to-register', [ChurchController::class, 'listChurchesForRegister']);
 });
