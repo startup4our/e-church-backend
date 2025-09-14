@@ -2,24 +2,45 @@
 
 namespace App\Services;
 
+use App\Enums\ChatType;
 use App\Models\Schedule;
+use App\Repositories\ChatRepository;
 use App\Repositories\ScheduleRepository;
 use App\Services\Interfaces\IScheduleService;
 use Illuminate\Database\Eloquent\Collection;
+use Log;
 
 class ScheduleService implements IScheduleService
 {
     private ScheduleRepository $repository;
+    private ChatRepository $chatRepository;
 
-    public function __construct(ScheduleRepository $repository)
-    {
-        $this->repository = $repository;
+    public function __construct(
+        ScheduleRepository $scheduleRepository,
+        ChatRepository $chatRepository
+    ) {
+        $this->repository = $scheduleRepository;
+        $this->chatRepository = $chatRepository;
     }
+
 
     public function create(array $data): Schedule
     {
-        return $this->repository->create($data);
-    }
+        //We must create a chat before create a schedule
+        $schedule = $this->repository->create($data);
+        Log::info(`created schedule, going to create chat for schedule [{$schedule->id}]`);
+        
+        $chat = $this->chatRepository->create([
+            'name' => $schedule->name,
+            'description' => `Chat da escala '{$schedule->name}'`,
+            'chatable_id' => $schedule->id,
+            'chatable_type' => ChatType::SCALE
+        ]);
+
+        Log::info(`created chat [{$chat->id}]`);
+
+        return $schedule;
+    }   
 
     public function getAll(): Collection
     {
