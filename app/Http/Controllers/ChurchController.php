@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Services\Interfaces\IChurchService;
 use Illuminate\Http\Request;
 use Illuminate\Validation\Rule;
+use Log;
 
 class ChurchController extends Controller
 {
@@ -60,5 +61,11 @@ class ChurchController extends Controller
     {
         $this->churchService->delete($id);
         return response()->json(null, 204);
+    }
+
+    public function listChurchesForRegister()
+    {
+        Log::info('Getting all churches to register');
+        return response()->json($this->churchService->getChurchesForRegister(), 200);
     }
 }

@@ -16,4 +16,6 @@ interface IChurchService
     public function update(string $id, array $data): Church;
     
     public function delete(string $id): bool;
+
+    public function getChurchesForRegister(): array;
 }
