@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Enums\ChatType;
 use App\Services\Interfaces\IChatService;
 use Illuminate\Http\Request;
+use Illuminate\Validation\Rules\Enum;
 
 class ChatController extends Controller
 {
@@ -30,7 +32,7 @@ class ChatController extends Controller
             'name' => 'required|string|max:255',
             'description' => 'required|string',
             'chatable_id' => 'required',
-            'chatable_type' => 'required|string',
+            'chatable_type' => ['required', new Enum(ChatType::class)],
         ]);
 
         return response()->json($this->service->create($validated), 201);
