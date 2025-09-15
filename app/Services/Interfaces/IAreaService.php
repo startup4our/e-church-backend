@@ -3,7 +3,7 @@
 namespace App\Services\Interfaces;
 
 use App\Models\Area;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 interface IAreaService
 {
@@ -16,4 +16,6 @@ interface IAreaService
     public function update(int $id, array $data): Area;
 
     public function delete(int $id): bool;
+
+    public function getUserAreas(int $user_id): Collection|Area;
 }

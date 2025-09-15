@@ -58,7 +58,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
     
-    Route::get('chats/user/{userId}', [ChatController::class, 'getChats']);
+    Route::post('chats/user/', [ChatController::class, 'getChats']);
 
 });
 

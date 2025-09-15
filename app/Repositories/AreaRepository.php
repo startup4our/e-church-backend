@@ -3,7 +3,8 @@
 namespace App\Repositories;
 
 use App\Models\Area;
-use Illuminate\Database\Eloquent\Collection;
+use App\Models\UserArea;
+use Illuminate\Support\Collection;
 
 class AreaRepository 
 {
@@ -33,5 +34,13 @@ class AreaRepository
     {
         $area = Area::findOrFail($id);
         return $area->delete();
+    }
+
+    public function getUserArea(int $userId): Collection
+    {
+        return Area::whereIn(
+            'id',
+            UserArea::where('user_id', $userId)->pluck('area_id')
+        )->get();
     }
 }
