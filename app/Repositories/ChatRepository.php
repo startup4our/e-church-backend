@@ -2,7 +2,12 @@
 
 namespace App\Repositories;
 
+use App\Enums\ChatType;
+use App\Models\Area;
 use App\Models\Chat;
+use App\Models\Schedule;
+use App\Models\UserSchedule;
+use Illuminate\Support\Collection;
 
 class ChatRepository
 {
@@ -40,4 +45,35 @@ class ChatRepository
         $chat = $this->getById($id);
         return $chat->delete();
     }
+
+    /**
+     * Get all chats for user - search in area and schedules chats
+     * @param int $user_id
+     * @param array $areas
+     * @return Collection|\Illuminate\Database\Eloquent\Builder[]
+     */
+    public function getAllByUser(int $user_id, array $areas): Collection
+    {
+        // Chats of Areas
+        $areaChats = Chat::query()
+            ->where('chatable_type', ChatType::AREA->value)
+            ->whereIn('chatable_id', $areas)
+            ->get();
+
+        
+        // Chats of Schedules
+        $userScheduleIds = UserSchedule::query()
+        ->where('user_id', $user_id)
+        ->pluck('schedule_id');
+
+        $scheduleChats = Chat::query()
+            ->where('chatable_type', ChatType::SCALE->value) 
+            ->whereIn('chatable_id', $userScheduleIds)       
+            ->get();
+
+        return $areaChats->merge($scheduleChats);
+    } 
+
+
+
 }
