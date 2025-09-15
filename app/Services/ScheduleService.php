@@ -24,7 +24,7 @@ class ScheduleService implements IScheduleService
     }
 
 
-    public function create(array $data): Schedule
+    public function create(array $data): Schedule 
     {
         //We must create a chat before create a schedule
         $schedule = $this->repository->create($data);

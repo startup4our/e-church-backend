@@ -16,4 +16,12 @@ class Chat extends Model
         'chatable_id',
         'chatable_type',
     ];
+
+     /**
+     * Relação polimórfica (Area ou Schedule)
+     */
+    public function chatable()
+    {
+        return $this->morphTo();
+    }
 }
