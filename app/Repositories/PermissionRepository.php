@@ -61,6 +61,10 @@ class PermissionRepository
             'update_area',
             'delete_area',
             'manage_users',
+            'create_chat',
+            'read_chat',
+            'update_chat',
+            'delete_chat',
             'manage_church_settings',
             'manage_app_settings',
         ]);
