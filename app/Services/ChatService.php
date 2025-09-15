@@ -3,7 +3,7 @@
 namespace App\Services;
 
 use App\Models\Chat;
-use App\Models\DTO\ChatDTO;
+use App\Models\DTO\ChatWithMessagesDTO;
 use App\Models\DTO\MessageDTO;
 use App\Repositories\ChatRepository;
 use App\Repositories\MessageRepository;
@@ -46,7 +46,7 @@ class ChatService implements \App\Services\Interfaces\IChatService
     }
 
     /**
-     * @return Collection<int, ChatDTO>
+     * @return Collection<int, ChatWithMessagesDTO>
      */
     public function getChatsForUser(int $user_id, array $areas): Collection
     {
@@ -73,7 +73,7 @@ class ChatService implements \App\Services\Interfaces\IChatService
                 })
                 ->toArray();
 
-            return ChatDTO::fromModel($chat, $chatMessages);
+            return ChatWithMessagesDTO::fromModel($chat, $chatMessages);
         });
     }
 
