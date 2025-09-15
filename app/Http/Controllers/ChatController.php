@@ -105,8 +105,13 @@ class ChatController extends Controller
 
     public function getChats(Request $request)
     {
-        $userId = $request->input('user_id');
-        $areas = $request->input('areas', []);
+        $validated = $request->validate([
+            'user_id' => 'required|integer',
+            'areas'   => 'array',
+        ]);
+
+        $userId = $validated['user_id'];
+        $areas  = $validated['areas'] ?? [];
 
         Log::info("Request to get chats for user", ['user_id' => $userId, 'areas' => $areas]);
 

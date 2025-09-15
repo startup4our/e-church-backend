@@ -5,7 +5,7 @@ namespace App\Services;
 use App\Models\Area;
 use App\Repositories\AreaRepository;
 use App\Services\Interfaces\IAreaService;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Support\Collection;
 
 class AreaService implements IAreaService
 {
@@ -40,4 +40,10 @@ class AreaService implements IAreaService
     {
         return $this->repository->delete($id);
     }
+
+    public function getUserAreas(int $user_id): Collection|Area
+    {
+        return $this->repository->getUserArea($user_id);
+    }
+
 }
