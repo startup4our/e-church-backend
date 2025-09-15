@@ -2,15 +2,22 @@
 
 namespace App\Services;
 
+use App\Models\Chat;
+use App\Models\DTO\ChatDTO;
+use App\Models\DTO\MessageDTO;
 use App\Repositories\ChatRepository;
+use App\Repositories\MessageRepository;
+use Illuminate\Support\Collection;
 
 class ChatService implements \App\Services\Interfaces\IChatService
 {
     protected $repository;
+    protected $messageRepository;
 
-    public function __construct(ChatRepository $repository)
+    public function __construct(ChatRepository $repository, MessageRepository $messageRepository)
     {
         $this->repository = $repository;
+        $this->messageRepository = $messageRepository;
     }
 
     public function getAll()
@@ -37,4 +44,37 @@ class ChatService implements \App\Services\Interfaces\IChatService
     {
         return $this->repository->delete($id);
     }
+
+    /**
+     * @return Collection<int, ChatDTO>
+     */
+    public function getChatsForUser(int $user_id, array $areas): Collection
+    {
+        // Get all chats user participates
+        $chats = $this->repository->getAllByUser($user_id, $areas);
+
+        // Get ids
+        $chatIds = $chats->pluck('id')->toArray();
+
+        // Get messages of this chats
+        $messages = $this->messageRepository->getAllForChats($chatIds);
+
+        // Build
+        return $chats->map(function (Chat $chat) use ($messages) {
+            $chatMessages = $messages
+                ->where('chatId', $chat->id)
+                ->map(function (MessageDTO $msg) {
+                    return [
+                        'content' => $msg->content,
+                        'sent_at' => $msg->sentAt,
+                        'user_name' => $msg->userName,
+                        'image_path' => $msg->imagePath,
+                    ];
+                })
+                ->toArray();
+
+            return ChatDTO::fromModel($chat, $chatMessages);
+        });
+    }
+
 }

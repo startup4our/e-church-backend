@@ -68,4 +68,9 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasMany(UserArea::class, 'user_id', 'id');
     }
+
+    public function userSchedules()
+    {
+        return $this->hasMany(UserSchedule::class, 'user_id');
+    }
 }

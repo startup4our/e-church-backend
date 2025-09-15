@@ -28,9 +28,11 @@ class Schedule extends Model
         'date_time' => 'datetime',
     ];
 
-    // Relação com User
-    public function user()
+    /**
+     * Relação com UserSchedule (N:1)
+     */
+    public function userSchedules()
     {
-        return $this->belongsTo(User::class, 'user_creator');
+        return $this->hasMany(UserSchedule::class, 'schedule_id');
     }
 }
