@@ -4,6 +4,8 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Services\Interfaces\IAreaService;
+use App\Services\Interfaces\IPermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +14,15 @@ use Log;
 
 class AuthController extends Controller
 {
+
+    protected IAreaService $areaService;
+    protected IPermissionService $permissionService;
+
+    public function __construct(IAreaService $areaService, IPermissionService $permissionService)
+    {
+        $this->areaService = $areaService;
+        $this->permissionService = $permissionService;
+    }
     public function login(Request $request)
     {
         $credentials = $request->only('email', 'password');
@@ -22,6 +33,12 @@ class AuthController extends Controller
         }
 
         $user = Auth::user();
+
+        // Get user permission
+        $permissions = $this->permissionService->getUserPermissions($user->id);
+
+        // Get user area
+        $areas = $this->areaService->getUserAreas($user->id);
 
         switch ($user->status) {
             case UserStatus::INACTIVE:
@@ -36,6 +53,8 @@ class AuthController extends Controller
                 Log::info("User [{$user->id}] has made login");
                 return response()->json([
                     'user' => $user,
+                    'permissions' => $permissions,
+                    'areas' => $areas,
                     'access_token' => $token,
                     'token_type' => 'bearer'
                 ]);
