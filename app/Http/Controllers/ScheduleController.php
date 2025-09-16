@@ -41,6 +41,7 @@ class ScheduleController extends Controller
             'date_time' => 'required|date',
             'observation' => 'nullable|string|max:255',
             'type' => ['required', Rule::in(ScheduleType::values())],
+            'approved' => 'boolean',
             'user_creator' => 'required|integer|exists:users,id'
         ]);
 
@@ -65,7 +66,7 @@ class ScheduleController extends Controller
             'date_time' => 'sometimes|date',
             'observation' => 'nullable|string|max:255',
             'type' => ['sometimes', Rule::in(ScheduleType::values())],
-            'aproved' => 'boolean',
+            'approved' => 'boolean',
             'user_creator' => 'sometimes|integer|exists:users,id'
         ]);
 

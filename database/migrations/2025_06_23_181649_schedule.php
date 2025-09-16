@@ -1,5 +1,6 @@
 <?php
 
+use App\Enums\ScheduleType;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Facades\Schema;
@@ -18,8 +19,8 @@ return new class extends Migration
             $table->string('local')->nullable();
             $table->dateTime('date_time');
             $table->string('observation')->nullable();
-            $table->enum('type', ['louvor', 'geral']);
-            $table->boolean('aproved')->default(false);
+            $table->enum('type', ScheduleType::values());
+            $table->boolean('approved')->default(false);
             $table->foreignId('user_creator')
                     ->constrained('users');
             $table->timestamps();

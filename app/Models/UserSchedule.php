@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\UserScheduleStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -14,6 +15,7 @@ class UserSchedule extends Model
     protected $fillable = [
         'schedule_id',
         'user_id',
+        'area_id',
         'status'
     ];
 
@@ -30,5 +32,10 @@ class UserSchedule extends Model
     public function user()
     {
         return $this->belongsTo(User::class, 'user_id');
+    }
+
+    public function area()
+    {
+        return $this->belongsTo(Area::class, 'area_id');
     }
 }
