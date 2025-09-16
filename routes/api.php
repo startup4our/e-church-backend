@@ -19,6 +19,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\UserScheduleController;
 
 /*
 |--------------------------------------------------------------------------
@@ -43,6 +44,10 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     // POST /api/v1/areas
     // PUT /api/v1/areas/{id}
     // DELETE /api/v1/areas/{id}
+    Route::get('user-schedules/show-all-schedules', [UserScheduleController::class, 'getAllSchedules']);
+    Route::get('user-schedules/show-users-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getUsersByScheduleId']);
+    Route::patch('user-schedules/update-status', [UserScheduleController::class, 'updateStatus']);
+
     Route::apiResource('areas', AreaController::class);
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
@@ -57,7 +62,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('schedules', ScheduleController::class);
 
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
-    
+
     Route::post('chats/user/', [ChatController::class, 'getChats']);
 
 });

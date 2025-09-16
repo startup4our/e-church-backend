@@ -24,12 +24,12 @@ class ScheduleService implements IScheduleService
     }
 
 
-    public function create(array $data): Schedule 
+    public function create(array $data): Schedule
     {
         //We must create a chat before create a schedule
         $schedule = $this->repository->create($data);
         Log::info(`created schedule, going to create chat for schedule [{$schedule->id}]`);
-        
+
         $chat = $this->chatRepository->create([
             'name' => $schedule->name,
             'description' => "Chat da escala '{$schedule->name}'",
@@ -40,7 +40,7 @@ class ScheduleService implements IScheduleService
         Log::info(`created chat [{$chat->id}]`);
 
         return $schedule;
-    }   
+    }
 
     public function getAll(): Collection
     {
