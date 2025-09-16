@@ -65,6 +65,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
 
 Route::prefix('v1/auth')->group(function () {
+    Route::post('register-church', [AuthController::class, 'registerChurch']);
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
     Route::post('logout', [AuthController::class, 'logout'])->middleware('auth:api');
