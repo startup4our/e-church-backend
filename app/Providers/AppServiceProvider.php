@@ -22,11 +22,13 @@ use App\Services\ChurchService;
 use App\Services\Interfaces\ILinkService;
 use App\Services\Interfaces\IRecordingService;
 use App\Services\Interfaces\IScheduleService;
+use App\Services\Interfaces\IUserScheduleService;
 use App\Services\LinkService;
 use App\Services\RecordingService;
 use App\Services\SongService;
 use App\Services\RoleService;
 use App\Services\ScheduleService;
+use App\Services\UserScheduleService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -47,6 +49,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(ILinkService::class, LinkService::class);
         $this->app->bind(IRecordingService::class, RecordingService::class);
         $this->app->bind(IScheduleService::class, ScheduleService::class);
+        $this->app->bind(IUserScheduleService::class, UserScheduleService::class);
     }
 
     /**

@@ -18,13 +18,13 @@ class Schedule extends Model
         'date_time',
         'observation',
         'type',
-        'aproved',
+        'approved',
         'user_creator'
     ];
 
     protected $casts = [
         'type' => ScheduleType::class,
-        'aproved' => 'boolean',
+        'approved' => 'boolean',
         'date_time' => 'datetime',
     ];
 
