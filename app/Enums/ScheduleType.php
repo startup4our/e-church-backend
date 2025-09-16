@@ -4,8 +4,8 @@ namespace App\Enums;
 
 enum ScheduleType: string
 {
-    case LOUVOR = 'louvor';
-    case GERAL = 'geral';
+    case LOUVOR = 'Louvor';
+    case GERAL = 'Geral';
 
     public static function values(): array
     {

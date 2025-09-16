@@ -1,0 +1,28 @@
+<?php
+
+namespace App\Models\DTO;
+
+use App\Enums\UserScheduleStatus;
+use ReflectionClass;
+use ReflectionProperty;
+
+class UserScheduleDetailsDTO
+{
+    public int $id;
+    public string $name;
+    public string $email;
+    public ?string $photo_path;
+    public ?string $birthday;
+    public ?UserScheduleStatus $statusSchedule;
+    public ?string $area;
+
+    public function __construct($schedule)
+    {
+        $reflection = new ReflectionClass($this);
+        $props = $reflection->getProperties(ReflectionProperty::IS_PUBLIC);
+        foreach ($props as $prop) {
+            $propName = $prop->getName();
+            $this->$propName = $schedule->$propName;
+        }
+    }
+}

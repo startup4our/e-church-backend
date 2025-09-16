@@ -4,6 +4,11 @@ namespace App\Enums;
 
 enum UserScheduleStatus: string
 {
-    case CONFIRMED = 'confirmed';
-    case SWAP_REQUESTED = 'swap_requested';
+    case CONFIRMED = 'Confirmado';
+    case SWAP_REQUESTED = 'Troca Solicitada';
+
+    public static function values(): array
+    {
+        return array_column(self::cases(), 'value');
+    }
 }
