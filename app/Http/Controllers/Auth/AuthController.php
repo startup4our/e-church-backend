@@ -4,7 +4,9 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\RegisterChurchRequest;
 use App\Services\Interfaces\IAreaService;
+use App\Services\Interfaces\IChurchService;
 use App\Services\Interfaces\IPermissionService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,11 +19,15 @@ class AuthController extends Controller
 
     protected IAreaService $areaService;
     protected IPermissionService $permissionService;
+    protected IChurchService $churchService;
 
-    public function __construct(IAreaService $areaService, IPermissionService $permissionService)
+    private string $ufs = 'AC,AL,AP,AM,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RS,RO,RR,SC,SP,SE,TO';
+
+    public function __construct(IAreaService $areaService, IPermissionService $permissionService, IChurchService $churchService)
     {
         $this->areaService = $areaService;
         $this->permissionService = $permissionService;
+        $this->churchService = $churchService;
     }
     public function login(Request $request)
     {
@@ -104,5 +110,80 @@ class AuthController extends Controller
             'token_type' => 'Bearer',
             'expires_in' => Auth::factory()->getTTL() * 60
         ]);
+    }
+
+    public function registerChurch(RegisterChurchRequest $request)
+    {
+        Log::info('Iniciando registro de igreja');
+
+    $data = $request->validated();
+    Log::info('Dados validados com sucesso', ['data' => $data]);
+
+    // create church
+    $church = $this->churchService->create(data: [
+        'name'       => $data['church_name'],
+        'cep'        => $data['church_cep'],
+        'street'     => $data['church_street'],
+        'number'     => $data['church_number'],
+        'complement' => $data['church_complement'] ?? null,
+        'quarter'    => $data['church_quarter'],
+        'city'       => $data['church_city'],
+        'state'      => $data['church_state'],
+    ]);
+    Log::info('Igreja criada com sucesso', ['church_id' => $church->id]);
+
+    // Create master user
+    $user = User::create([
+        'name'      => $data['user_name'],
+        'email'     => $data['user_email'],
+        'password'  => bcrypt($data['user_password']),
+        'birthday'  => $data['user_birthday'],
+        'church_id' => $church->id,
+        'status'    => UserStatus::ACTIVE,
+    ]);
+    Log::info('Usuário master criado com sucesso', ['user_id' => $user->id]);
+
+    // TODO: add template master and use here
+    // Create permissions
+    $permissionsData = [
+        'user_id' => $user->id,
+        'create_scale' => true,
+        'read_scale'   => true,
+        'update_scale' => true,
+        'delete_scale' => true,
+
+        'create_music' => true,
+        'read_music'   => true,
+        'update_music' => true,
+        'delete_music' => true,
+
+        'create_role' => true,
+        'read_role'   => true,
+        'update_role' => true,
+        'delete_role' => true,
+
+        'create_area' => true,
+        'read_area'   => true,
+        'update_area' => true,
+        'delete_area' => true,
+
+        'create_chat' => true,
+        'read_chat'   => true,
+        'update_chat' => true,
+        'delete_chat' => true,
+
+        'manage_users'           => true,
+        'manage_church_settings' => true,
+        'manage_app_settings'    => true,
+    ];
+    $this->permissionService->create($permissionsData);
+    Log::info('Permissões do usuário master criadas com sucesso', ['user_id' => $user->id]);
+
+    // autentica e retorna token
+    $token = Auth::login($user);
+    Log::info('Token gerado com sucesso', ['user_id' => $user->id]);
+
+    return $this->respondWithToken($token);
+
     }
 }
