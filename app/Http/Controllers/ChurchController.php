@@ -36,7 +36,7 @@ class ChurchController extends Controller
             'state'      => ['required',"in:$ufs"],
         ]);
 
-        return response()->json($this->churchService->create($data), 201);
+        return response()->json($this->churchService->create(data: $data), 201);
     }
 
     public function update(Request $request, string $id)
