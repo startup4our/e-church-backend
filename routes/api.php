@@ -19,6 +19,7 @@ use App\Http\Controllers\Auth\VerifyEmailController;
 use App\Http\Controllers\LinkController;
 use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\PermissionTemplateController;
 
 /*
 |--------------------------------------------------------------------------
@@ -54,6 +55,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('links', LinkController::class);
     Route::apiResource('recordings', RecordingController::class);
     Route::apiResource('schedules', ScheduleController::class);
+    Route::apiResource('permission-templates', PermissionTemplateController::class);
 
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
 

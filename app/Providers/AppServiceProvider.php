@@ -17,15 +17,17 @@ use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IChurchService;
 use App\Services\Interfaces\ISongService;
 use App\Services\Interfaces\IRoleService;
+use App\Services\Interfaces\IPermissionTemplateService;
 use App\Services\AreaService;
 use App\Services\ChurchService;
+use App\Services\SongService;
+use App\Services\RoleService;
+use App\Services\PermissionTemplateService;
 use App\Services\Interfaces\ILinkService;
 use App\Services\Interfaces\IRecordingService;
 use App\Services\Interfaces\IScheduleService;
 use App\Services\LinkService;
 use App\Services\RecordingService;
-use App\Services\SongService;
-use App\Services\RoleService;
 use App\Services\ScheduleService;
 
 class AppServiceProvider extends ServiceProvider
@@ -39,6 +41,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IChurchService::class, ChurchService::class);
         $this->app->bind(ISongService::class, SongService::class);
         $this->app->bind(IRoleService::class, RoleService::class);
+        $this->app->bind(IPermissionTemplateService::class, PermissionTemplateService::class);
         $this->app->bind(IChatService::class, ChatService::class);
         $this->app->bind(IUnavailabilityService::class, UnavailabilityService::class);
         $this->app->bind(IMessageService::class, MessageService::class);
