@@ -4,7 +4,9 @@ namespace Tests\Unit;
 
 use Tests\TestCase;
 use App\Models\Chat;
+use App\Models\Message;
 use App\Repositories\ChatRepository;
+use App\Repositories\MessageRepository;
 use App\Services\ChatService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 
@@ -17,7 +19,10 @@ class ChatServiceTest extends TestCase
     protected function setUp(): void
     {
         parent::setUp();
-        $this->service = new ChatService(new ChatRepository(new Chat()));
+        $this->service = new ChatService(
+            new ChatRepository(new Chat()),
+            new MessageRepository(new Message())
+        );
     }
 
     public function test_create_chat()

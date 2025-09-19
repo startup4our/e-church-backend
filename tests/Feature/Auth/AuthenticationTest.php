@@ -25,9 +25,14 @@ class AuthenticationTest extends TestCase
 
         $response->assertStatus(200)
                  ->assertJsonStructure([
-                     'access_token',
-                     'token_type',
-                     'expires_in',
+                     'success',
+                     'data' => [
+                         'user',
+                         'permissions',
+                         'areas',
+                         'access_token',
+                         'token_type'
+                     ]
                  ]);
     }
 
@@ -44,8 +49,20 @@ class AuthenticationTest extends TestCase
         ]);
 
         $response->assertStatus(401)
+                 ->assertJsonStructure([
+                     'success',
+                     'error' => [
+                         'code',
+                         'message',
+                         'details',
+                         'timestamp'
+                     ]
+                 ])
                  ->assertJson([
-                     'error' => 'Credenciais inválidas',
+                     'success' => false,
+                     'error' => [
+                         'code' => 'INVALID_CREDENTIALS'
+                     ]
                  ]);
     }
 
@@ -53,6 +70,7 @@ class AuthenticationTest extends TestCase
     {
         $user = User::factory()->create([
             'password' => Hash::make('password'),
+            'status' => \App\Enums\UserStatus::ACTIVE,
         ]);
 
         // login pra pegar token
@@ -61,15 +79,22 @@ class AuthenticationTest extends TestCase
             'password' => 'password',
         ]);
 
-        $token = $loginResponse->json('access_token');
+        $token = $loginResponse->json('data.access_token');
 
         // usa token pra logout
         $logoutResponse = $this->withHeader('Authorization', 'Bearer '.$token)
                                ->postJson('/api/v1/auth/logout');
 
         $logoutResponse->assertStatus(200)
+                       ->assertJsonStructure([
+                           'success',
+                           'data' => ['message']
+                       ])
                        ->assertJson([
-                           'message' => 'Logout feito com sucesso',
+                           'success' => true,
+                           'data' => [
+                               'message' => 'Logout feito com sucesso'
+                           ]
                        ]);
     }
 }
