@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Models\Area;
+use App\Models\UserArea;
 use App\Repositories\AreaRepository;
 use App\Services\Interfaces\IAreaService;
 use Illuminate\Support\Collection;
@@ -23,7 +24,7 @@ class AreaService implements IAreaService
         
         try {
             $area = $this->repository->create($data);
-            Log::info("Area created successfully with ID: {$area->id}");
+            Log::info("Area [{$area->id}] '{$area->name}' created successfully");
             return $area;
         } catch (\Exception $e) {
             Log::error("Failed to create area: " . $e->getMessage());
@@ -34,17 +35,29 @@ class AreaService implements IAreaService
     public function getAll(): Collection
     {
         Log::info("Retrieving all areas");
-        $areas = $this->repository->getAll();
-        Log::info("Retrieved " . $areas->count() . " areas");
-        return $areas;
+        
+        try {
+            $areas = $this->repository->getAll();
+            Log::info("Retrieved " . $areas->count() . " areas");
+            return $areas;
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve areas: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getByChurchId(int $churchId): Collection
     {
         Log::info("Retrieving areas for church [{$churchId}]");
-        $areas = $this->repository->getByChurchId($churchId);
-        Log::info("Retrieved " . $areas->count() . " areas for church [{$churchId}]");
-        return $areas;
+        
+        try {
+            $areas = $this->repository->getByChurchId($churchId);
+            Log::info("Retrieved " . $areas->count() . " areas for church [{$churchId}]");
+            return $areas;
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve areas for church [{$churchId}]: " . $e->getMessage());
+            throw $e;
+        }
     }
 
     public function getById(int $id): Area
@@ -122,9 +135,22 @@ class AreaService implements IAreaService
         Log::info("Deleting area [{$id}] for church [{$churchId}]");
         
         try {
+            // Check if area has associated users
+            $userCount = UserArea::where('area_id', $id)->count();
+            if ($userCount > 0) {
+                Log::warning("Cannot delete area [{$id}] - it has {$userCount} associated users");
+                throw new \App\Exceptions\AppException(
+                    \App\Enums\ErrorCode::AREA_HAS_USERS,
+                    userMessage: "Não é possível excluir uma área que possui usuários associados. Remova os usuários da área primeiro."
+                );
+            }
+            
             $result = $this->repository->deleteByIdAndChurchId($id, $churchId);
             Log::info("Area [{$id}] deleted successfully for church [{$churchId}]");
             return $result;
+        } catch (\App\Exceptions\AppException $e) {
+            // Re-throw AppException as-is
+            throw $e;
         } catch (\Exception $e) {
             Log::error("Failed to delete area [{$id}] for church [{$churchId}]: " . $e->getMessage());
             throw $e;

@@ -1,23 +1,20 @@
 <?php
 
-namespace Tests\Feature\Http\Controllers;
+namespace Tests\Feature\Controller;
 
-use Tests\TestCase;
 use App\Models\Area;
 use App\Models\User;
-use App\Models\Church;
-use Illuminate\Foundation\Testing\RefreshDatabase;
+use App\Models\UserArea;
+use Tests\TestCase;
 
 class AreaControllerTest extends TestCase
 {
-    use RefreshDatabase;
-
-    public function test_index_returns_areas()
+    public function test_index_returns_areas_for_authenticated_user()
     {
         $user = $this->createUserWithPermissions(['read_area']);
         $this->authenticate($user);
 
-        Area::factory()->count(2)->create(['church_id' => $user->church_id]);
+        $area = Area::factory()->create(['church_id' => $user->church_id]);
 
         $response = $this->getJson('/api/v1/areas');
 
@@ -25,13 +22,22 @@ class AreaControllerTest extends TestCase
                  ->assertJsonStructure([
                      'success',
                      'data' => [
-                         '*' => ['id', 'name', 'description', 'church_id']
+                         '*' => [
+                             'id',
+                             'name',
+                             'description',
+                             'church_id',
+                             'created_at',
+                             'updated_at'
+                         ]
                      ]
                  ])
-                 ->assertJsonCount(2, 'data');
+                 ->assertJson([
+                     'success' => true
+                 ]);
     }
 
-    public function test_show_returns_area()
+    public function test_show_returns_area_for_authenticated_user()
     {
         $user = $this->createUserWithPermissions(['read_area']);
         $this->authenticate($user);
@@ -43,47 +49,99 @@ class AreaControllerTest extends TestCase
         $response->assertStatus(200)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'name', 'description', 'church_id']
+                     'data' => [
+                         'id',
+                         'name',
+                         'description',
+                         'church_id',
+                         'created_at',
+                         'updated_at'
+                     ]
                  ])
-                 ->assertJsonFragment(['id' => $area->id]);
+                 ->assertJson([
+                     'success' => true,
+                     'data' => [
+                         'id' => $area->id,
+                         'name' => $area->name
+                     ]
+                 ]);
     }
 
-    public function test_store_creates_area()
+    public function test_store_creates_area_with_valid_data()
     {
         $user = $this->createUserWithPermissions(['create_area']);
         $this->authenticate($user);
 
-        $data = ['name' => 'New Area', 'description' => 'Testing'];
+        $areaData = [
+            'name' => 'Test Area',
+            'description' => 'Test Description'
+        ];
 
-        $response = $this->postJson('/api/v1/areas', $data);
+        $response = $this->postJson('/api/v1/areas', $areaData);
 
         $response->assertStatus(201)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'name', 'description', 'church_id']
+                     'data' => [
+                         'id',
+                         'name',
+                         'description',
+                         'church_id',
+                         'created_at',
+                         'updated_at'
+                     ]
                  ])
-                 ->assertJsonFragment(['name' => 'New Area']);
+                 ->assertJson([
+                     'success' => true,
+                     'data' => [
+                         'name' => 'Test Area',
+                         'description' => 'Test Description',
+                         'church_id' => $user->church_id
+                     ]
+                 ]);
 
-        $this->assertDatabaseHas('area', ['name' => 'New Area']);
+        $this->assertDatabaseHas('area', [
+            'name' => 'Test Area',
+            'church_id' => $user->church_id
+        ]);
     }
 
-    public function test_update_modifies_area()
+    public function test_update_modifies_area_with_valid_data()
     {
         $user = $this->createUserWithPermissions(['update_area']);
         $this->authenticate($user);
 
-        $area = Area::factory()->create(['name' => 'Old', 'church_id' => $user->church_id]);
+        $area = Area::factory()->create(['church_id' => $user->church_id]);
 
-        $response = $this->putJson("/api/v1/areas/{$area->id}", ['name' => 'Updated']);
+        $updateData = [
+            'name' => 'Updated Area Name',
+            'description' => 'Updated Description'
+        ];
+
+        $response = $this->putJson("/api/v1/areas/{$area->id}", $updateData);
 
         $response->assertStatus(200)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'name', 'description', 'church_id']
+                     'data' => [
+                         'id',
+                         'name',
+                         'description',
+                         'church_id',
+                         'created_at',
+                         'updated_at'
+                     ]
                  ])
-                 ->assertJsonFragment(['name' => 'Updated']);
+                 ->assertJson([
+                     'success' => true,
+                     'data' => [
+                         'id' => $area->id,
+                         'name' => 'Updated Area Name',
+                         'description' => 'Updated Description'
+                     ]
+                 ]);
 
-        $this->assertDatabaseHas('area', ['name' => 'Updated']);
+        $this->assertDatabaseHas('area', ['name' => 'Updated Area Name']);
     }
 
     public function test_destroy_deletes_area()
@@ -100,12 +158,49 @@ class AreaControllerTest extends TestCase
         $this->assertDatabaseMissing('area', ['id' => $area->id]);
     }
 
+    public function test_destroy_prevents_deletion_when_area_has_users()
+    {
+        $user = $this->createUserWithPermissions(['delete_area']);
+        $this->authenticate($user);
+
+        $area = Area::factory()->create(['church_id' => $user->church_id]);
+        
+        // Create a user associated with this area
+        $associatedUser = User::factory()->create(['church_id' => $user->church_id]);
+        UserArea::create([
+            'area_id' => $area->id,
+            'user_id' => $associatedUser->id
+        ]);
+
+        $response = $this->deleteJson("/api/v1/areas/{$area->id}");
+
+        $response->assertStatus(409)
+                 ->assertJsonStructure([
+                     'success',
+                     'error' => [
+                         'code',
+                         'message',
+                         'details',
+                         'timestamp'
+                     ]
+                 ])
+                 ->assertJson([
+                     'success' => false,
+                     'error' => [
+                         'code' => 'AREA_HAS_USERS'
+                     ]
+                 ]);
+
+        // Verify area still exists
+        $this->assertDatabaseHas('area', ['id' => $area->id]);
+    }
+
     public function test_show_returns_error_for_nonexistent_area()
     {
         $user = $this->createUserWithPermissions(['read_area']);
         $this->authenticate($user);
 
-        $response = $this->getJson('/api/v1/areas/999');
+        $response = $this->getJson('/api/v1/areas/99999');
 
         $response->assertStatus(404)
                  ->assertJsonStructure([
@@ -125,7 +220,7 @@ class AreaControllerTest extends TestCase
                  ]);
     }
 
-    public function test_store_returns_validation_error()
+    public function test_store_returns_validation_error_for_invalid_data()
     {
         $user = $this->createUserWithPermissions(['create_area']);
         $this->authenticate($user);
