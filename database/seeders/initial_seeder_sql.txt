@@ -122,13 +122,13 @@ VALUES
     true,false,true
 );
 
---  Áreas (4)
-INSERT INTO area (name, description)
+--  Áreas (4) - Fixed to include church_id
+INSERT INTO area (name, description, church_id)
 VALUES
-('Music','Responsible for music and worship'),
-('Administration','Admin tasks and scheduling'),
-('Youth Ministry','Youth activities and events'),
-('Outreach','Community outreach programs');
+('Music','Responsible for music and worship', (SELECT id FROM church WHERE name='Grace Church')),
+('Administration','Admin tasks and scheduling', (SELECT id FROM church WHERE name='Grace Church')),
+('Youth Ministry','Youth activities and events', (SELECT id FROM church WHERE name='Grace Church')),
+('Outreach','Community outreach programs', (SELECT id FROM church WHERE name='Grace Church'));
 
 -- Roles com associação a area_id via SELECT
 INSERT INTO role (name, description, area_id)
@@ -163,3 +163,133 @@ VALUES
 ((SELECT id FROM area WHERE name='Administration'), (SELECT id FROM "users" WHERE name='Paul Copper')),
 ((SELECT id FROM area WHERE name='Youth Ministry'), (SELECT id FROM "users" WHERE name='Quinn Platinum')),
 ((SELECT id FROM area WHERE name='Outreach'), (SELECT id FROM "users" WHERE name='Rita Diamond'));
+
+-- Songs (10) - Christian worship songs
+INSERT INTO song (name, artist, cover_path, duration, album, spotify_id, spotify_url, preview_url)
+VALUES
+('Amazing Grace', 'John Newton', '/covers/amazing_grace.jpg', 240, 'Classic Hymns', '4uLU6hMCjMI75M1A2tKUQC', 'https://open.spotify.com/track/4uLU6hMCjMI75M1A2tKUQC', 'https://p.scdn.co/mp3-preview/4uLU6hMCjMI75M1A2tKUQC'),
+('How Great Thou Art', 'Stuart Hine', '/covers/how_great_thou_art.jpg', 280, 'Traditional Hymns', '5j5u2a2g8j5u2a2g8j5u2a2', 'https://open.spotify.com/track/5j5u2a2g8j5u2a2g8j5u2a2', 'https://p.scdn.co/mp3-preview/5j5u2a2g8j5u2a2g8j5u2a2'),
+('Blessed Be Your Name', 'Matt Redman', '/covers/blessed_be_your_name.jpg', 320, 'Where Angels Fear to Tread', '3j5u2a2g8j5u2a2g8j5u2a3', 'https://open.spotify.com/track/3j5u2a2g8j5u2a2g8j5u2a3', 'https://p.scdn.co/mp3-preview/3j5u2a2g8j5u2a2g8j5u2a3'),
+('10,000 Reasons', 'Matt Redman', '/covers/10000_reasons.jpg', 300, '10,000 Reasons', '4j5u2a2g8j5u2a2g8j5u2a4', 'https://open.spotify.com/track/4j5u2a2g8j5u2a2g8j5u2a4', 'https://p.scdn.co/mp3-preview/4j5u2a2g8j5u2a2g8j5u2a4'),
+('Oceans', 'Hillsong United', '/covers/oceans.jpg', 360, 'Zion', '5j5u2a2g8j5u2a2g8j5u2a5', 'https://open.spotify.com/track/5j5u2a2g8j5u2a2g8j5u2a5', 'https://p.scdn.co/mp3-preview/5j5u2a2g8j5u2a2g8j5u2a5'),
+('What a Beautiful Name', 'Hillsong Worship', '/covers/what_a_beautiful_name.jpg', 340, 'Let There Be Light', '6j5u2a2g8j5u2a2g8j5u2a6', 'https://open.spotify.com/track/6j5u2a2g8j5u2a2g8j5u2a6', 'https://p.scdn.co/mp3-preview/6j5u2a2g8j5u2a2g8j5u2a6'),
+('Good Good Father', 'Chris Tomlin', '/covers/good_good_father.jpg', 320, 'Good Good Father', '7j5u2a2g8j5u2a2g8j5u2a7', 'https://open.spotify.com/track/7j5u2a2g8j5u2a2g8j5u2a7', 'https://p.scdn.co/mp3-preview/7j5u2a2g8j5u2a2g8j5u2a7'),
+('Reckless Love', 'Cory Asbury', '/covers/reckless_love.jpg', 380, 'Reckless Love', '8j5u2a2g8j5u2a2g8j5u2a8', 'https://open.spotify.com/track/8j5u2a2g8j5u2a2g8j5u2a8', 'https://p.scdn.co/mp3-preview/8j5u2a2g8j5u2a2g8j5u2a8'),
+('Way Maker', 'Sinach', '/covers/way_maker.jpg', 400, 'Way Maker', '9j5u2a2g8j5u2a2g8j5u2a9', 'https://open.spotify.com/track/9j5u2a2g8j5u2a2g8j5u2a9', 'https://p.scdn.co/mp3-preview/9j5u2a2g8j5u2a2g8j5u2a9'),
+('Great Are You Lord', 'All Sons & Daughters', '/covers/great_are_you_lord.jpg', 350, 'All Sons & Daughters', '0j5u2a2g8j5u2a2g8j5u2a0', 'https://open.spotify.com/track/0j5u2a2g8j5u2a2g8j5u2a0', 'https://p.scdn.co/mp3-preview/0j5u2a2g8j5u2a2g8j5u2a0');
+
+-- Recordings (20) - Different voice parts for songs
+INSERT INTO recordings (song_id, type, path, description)
+VALUES
+((SELECT id FROM song WHERE name='Amazing Grace'), 'solo', '/recordings/amazing_grace_solo.mp3', 'Solo version of Amazing Grace'),
+((SELECT id FROM song WHERE name='Amazing Grace'), 'soprano', '/recordings/amazing_grace_soprano.mp3', 'Soprano part for Amazing Grace'),
+((SELECT id FROM song WHERE name='Amazing Grace'), 'contralto', '/recordings/amazing_grace_contralto.mp3', 'Contralto part for Amazing Grace'),
+((SELECT id FROM song WHERE name='Amazing Grace'), 'tenor', '/recordings/amazing_grace_tenor.mp3', 'Tenor part for Amazing Grace'),
+((SELECT id FROM song WHERE name='How Great Thou Art'), 'solo', '/recordings/how_great_thou_art_solo.mp3', 'Solo version of How Great Thou Art'),
+((SELECT id FROM song WHERE name='How Great Thou Art'), 'soprano', '/recordings/how_great_thou_art_soprano.mp3', 'Soprano part for How Great Thou Art'),
+((SELECT id FROM song WHERE name='How Great Thou Art'), 'contralto', '/recordings/how_great_thou_art_contralto.mp3', 'Contralto part for How Great Thou Art'),
+((SELECT id FROM song WHERE name='How Great Thou Art'), 'tenor', '/recordings/how_great_thou_art_tenor.mp3', 'Tenor part for How Great Thou Art'),
+((SELECT id FROM song WHERE name='Blessed Be Your Name'), 'solo', '/recordings/blessed_be_your_name_solo.mp3', 'Solo version of Blessed Be Your Name'),
+((SELECT id FROM song WHERE name='Blessed Be Your Name'), 'soprano', '/recordings/blessed_be_your_name_soprano.mp3', 'Soprano part for Blessed Be Your Name'),
+((SELECT id FROM song WHERE name='10,000 Reasons'), 'solo', '/recordings/10000_reasons_solo.mp3', 'Solo version of 10,000 Reasons'),
+((SELECT id FROM song WHERE name='10,000 Reasons'), 'soprano', '/recordings/10000_reasons_soprano.mp3', 'Soprano part for 10,000 Reasons'),
+((SELECT id FROM song WHERE name='Oceans'), 'solo', '/recordings/oceans_solo.mp3', 'Solo version of Oceans'),
+((SELECT id FROM song WHERE name='Oceans'), 'soprano', '/recordings/oceans_soprano.mp3', 'Soprano part for Oceans'),
+((SELECT id FROM song WHERE name='What a Beautiful Name'), 'solo', '/recordings/what_a_beautiful_name_solo.mp3', 'Solo version of What a Beautiful Name'),
+((SELECT id FROM song WHERE name='What a Beautiful Name'), 'soprano', '/recordings/what_a_beautiful_name_soprano.mp3', 'Soprano part for What a Beautiful Name'),
+((SELECT id FROM song WHERE name='Good Good Father'), 'solo', '/recordings/good_good_father_solo.mp3', 'Solo version of Good Good Father'),
+((SELECT id FROM song WHERE name='Reckless Love'), 'solo', '/recordings/reckless_love_solo.mp3', 'Solo version of Reckless Love'),
+((SELECT id FROM song WHERE name='Way Maker'), 'solo', '/recordings/way_maker_solo.mp3', 'Solo version of Way Maker'),
+((SELECT id FROM song WHERE name='Great Are You Lord'), 'solo', '/recordings/great_are_you_lord_solo.mp3', 'Solo version of Great Are You Lord');
+
+-- Schedules (8) - Different types of church events
+INSERT INTO schedule (name, description, local, date_time, observation, type, approved, user_creator)
+VALUES
+('Sunday Morning Service', 'Regular Sunday worship service', 'Main Sanctuary', '2024-01-07 10:00:00', 'Bring your Bibles', 'Geral', true, (SELECT id FROM "users" WHERE name='Erick Bonifacio')),
+('Youth Group Meeting', 'Weekly youth ministry gathering', 'Youth Hall', '2024-01-08 19:00:00', 'Pizza will be served', 'Geral', true, (SELECT id FROM "users" WHERE name='Alice Johnson')),
+('Worship Team Practice', 'Music rehearsal for Sunday service', 'Music Room', '2024-01-09 18:00:00', 'Bring instruments', 'Louvor', true, (SELECT id FROM "users" WHERE name='Erick Bonifacio')),
+('Community Outreach', 'Volunteer work in the neighborhood', 'Community Center', '2024-01-10 14:00:00', 'Wear comfortable clothes', 'Geral', true, (SELECT id FROM "users" WHERE name='Bob Brown')),
+('Prayer Meeting', 'Weekly prayer and fellowship', 'Chapel', '2024-01-11 20:00:00', 'All are welcome', 'Geral', true, (SELECT id FROM "users" WHERE name='Jane Smith')),
+('Choir Practice', 'Choir rehearsal for upcoming events', 'Music Room', '2024-01-12 19:30:00', 'Sheet music provided', 'Louvor', true, (SELECT id FROM "users" WHERE name='Carol White')),
+('Bible Study', 'Weekly Bible study group', 'Conference Room', '2024-01-13 15:00:00', 'Study guide available', 'Geral', false, (SELECT id FROM "users" WHERE name='David Black')),
+('Special Concert', 'Gospel music concert', 'Main Sanctuary', '2024-01-14 19:00:00', 'Tickets required', 'Louvor', true, (SELECT id FROM "users" WHERE name='Erick Bonifacio'));
+
+-- User Schedules (20) - Linking users to schedules with different statuses
+INSERT INTO user_schedule (schedule_id, user_id, area_id, status)
+VALUES
+((SELECT id FROM schedule WHERE name='Sunday Morning Service'), (SELECT id FROM "users" WHERE name='Erick Bonifacio'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Sunday Morning Service'), (SELECT id FROM "users" WHERE name='Jane Smith'), (SELECT id FROM area WHERE name='Administration'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Sunday Morning Service'), (SELECT id FROM "users" WHERE name='Alice Johnson'), (SELECT id FROM area WHERE name='Youth Ministry'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Youth Group Meeting'), (SELECT id FROM "users" WHERE name='Alice Johnson'), (SELECT id FROM area WHERE name='Youth Ministry'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Youth Group Meeting'), (SELECT id FROM "users" WHERE name='Eve Green'), (SELECT id FROM area WHERE name='Youth Ministry'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Youth Group Meeting'), (SELECT id FROM "users" WHERE name='Ivy Red'), (SELECT id FROM area WHERE name='Youth Ministry'), 'Troca Solicitada'),
+((SELECT id FROM schedule WHERE name='Worship Team Practice'), (SELECT id FROM "users" WHERE name='Erick Bonifacio'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Worship Team Practice'), (SELECT id FROM "users" WHERE name='Carol White'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Worship Team Practice'), (SELECT id FROM "users" WHERE name='Grace Blue'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Community Outreach'), (SELECT id FROM "users" WHERE name='Bob Brown'), (SELECT id FROM area WHERE name='Outreach'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Community Outreach'), (SELECT id FROM "users" WHERE name='Frank Gray'), (SELECT id FROM area WHERE name='Outreach'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Community Outreach'), (SELECT id FROM "users" WHERE name='Jack Orange'), (SELECT id FROM area WHERE name='Outreach'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Prayer Meeting'), (SELECT id FROM "users" WHERE name='Jane Smith'), (SELECT id FROM area WHERE name='Administration'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Prayer Meeting'), (SELECT id FROM "users" WHERE name='David Black'), (SELECT id FROM area WHERE name='Administration'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Choir Practice'), (SELECT id FROM "users" WHERE name='Carol White'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Choir Practice'), (SELECT id FROM "users" WHERE name='Kate Pink'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Choir Practice'), (SELECT id FROM "users" WHERE name='Olivia Bronze'), (SELECT id FROM area WHERE name='Music'), 'Troca Solicitada'),
+((SELECT id FROM schedule WHERE name='Bible Study'), (SELECT id FROM "users" WHERE name='David Black'), (SELECT id FROM area WHERE name='Administration'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Special Concert'), (SELECT id FROM "users" WHERE name='Erick Bonifacio'), (SELECT id FROM area WHERE name='Music'), 'Confirmado'),
+((SELECT id FROM schedule WHERE name='Special Concert'), (SELECT id FROM "users" WHERE name='Carol White'), (SELECT id FROM area WHERE name='Music'), 'Confirmado');
+
+-- Chats (4) - One for each area
+INSERT INTO chat (name, description, chatable_id, chatable_type)
+VALUES
+('Music Team Chat', 'Discussion for music ministry members', (SELECT id FROM area WHERE name='Music'), 'App\\Models\\Area'),
+('Administration Chat', 'Administrative team communication', (SELECT id FROM area WHERE name='Administration'), 'App\\Models\\Area'),
+('Youth Ministry Chat', 'Youth leaders coordination', (SELECT id FROM area WHERE name='Youth Ministry'), 'App\\Models\\Area'),
+('Outreach Chat', 'Community outreach planning', (SELECT id FROM area WHERE name='Outreach'), 'App\\Models\\Area');
+
+-- Messages (15) - Sample messages in different chats
+INSERT INTO messages (content, image_path, sent_at, chat_id, user_id)
+VALUES
+('Good morning everyone! Ready for Sunday service?', NULL, '2024-01-06 08:00:00', (SELECT id FROM chat WHERE name='Music Team Chat'), (SELECT id FROM "users" WHERE name='Erick Bonifacio')),
+('Yes! I have the new songs ready', NULL, '2024-01-06 08:15:00', (SELECT id FROM chat WHERE name='Music Team Chat'), (SELECT id FROM "users" WHERE name='Carol White')),
+('Great! Can we practice at 6 PM today?', NULL, '2024-01-06 08:20:00', (SELECT id FROM chat WHERE name='Music Team Chat'), (SELECT id FROM "users" WHERE name='Grace Blue')),
+('Meeting scheduled for tomorrow at 2 PM', NULL, '2024-01-06 09:00:00', (SELECT id FROM chat WHERE name='Administration Chat'), (SELECT id FROM "users" WHERE name='Jane Smith')),
+('I will be there', NULL, '2024-01-06 09:05:00', (SELECT id FROM chat WHERE name='Administration Chat'), (SELECT id FROM "users" WHERE name='David Black')),
+('Youth event this Friday - who can help?', NULL, '2024-01-06 10:00:00', (SELECT id FROM chat WHERE name='Youth Ministry Chat'), (SELECT id FROM "users" WHERE name='Alice Johnson')),
+('I can help with setup', NULL, '2024-01-06 10:10:00', (SELECT id FROM chat WHERE name='Youth Ministry Chat'), (SELECT id FROM "users" WHERE name='Eve Green')),
+('Me too!', NULL, '2024-01-06 10:15:00', (SELECT id FROM chat WHERE name='Youth Ministry Chat'), (SELECT id FROM "users" WHERE name='Ivy Red')),
+('Community service project next week', NULL, '2024-01-06 11:00:00', (SELECT id FROM chat WHERE name='Outreach Chat'), (SELECT id FROM "users" WHERE name='Bob Brown')),
+('Count me in!', NULL, '2024-01-06 11:05:00', (SELECT id FROM chat WHERE name='Outreach Chat'), (SELECT id FROM "users" WHERE name='Frank Gray')),
+('What time should we meet?', NULL, '2024-01-06 11:10:00', (SELECT id FROM chat WHERE name='Outreach Chat'), (SELECT id FROM "users" WHERE name='Jack Orange')),
+('Don''t forget about the sound check', NULL, '2024-01-06 14:00:00', (SELECT id FROM chat WHERE name='Music Team Chat'), (SELECT id FROM "users" WHERE name='Kate Pink')),
+('Budget review meeting moved to Thursday', NULL, '2024-01-06 15:00:00', (SELECT id FROM chat WHERE name='Administration Chat'), (SELECT id FROM "users" WHERE name='Leo Indigo')),
+('Pizza ordered for youth event', NULL, '2024-01-06 16:00:00', (SELECT id FROM chat WHERE name='Youth Ministry Chat'), (SELECT id FROM "users" WHERE name='Mia Silver')),
+('Volunteers needed for food bank', NULL, '2024-01-06 17:00:00', (SELECT id FROM chat WHERE name='Outreach Chat'), (SELECT id FROM "users" WHERE name='Nate Gold'));
+
+-- Unavailability (25) - User availability constraints
+INSERT INTO unavailability (user_id, weekday, shift)
+VALUES
+((SELECT id FROM "users" WHERE name='Erick Bonifacio'), 1, 'manha'), -- Monday morning
+((SELECT id FROM "users" WHERE name='Erick Bonifacio'), 2, 'tarde'), -- Tuesday afternoon
+((SELECT id FROM "users" WHERE name='Jane Smith'), 0, 'noite'), -- Sunday night
+((SELECT id FROM "users" WHERE name='Jane Smith'), 6, 'manha'), -- Saturday morning
+((SELECT id FROM "users" WHERE name='Alice Johnson'), 3, 'tarde'), -- Wednesday afternoon
+((SELECT id FROM "users" WHERE name='Alice Johnson'), 4, 'noite'), -- Thursday night
+((SELECT id FROM "users" WHERE name='Bob Brown'), 1, 'manha'), -- Monday morning
+((SELECT id FROM "users" WHERE name='Bob Brown'), 5, 'tarde'), -- Friday afternoon
+((SELECT id FROM "users" WHERE name='Carol White'), 2, 'noite'), -- Tuesday night
+((SELECT id FROM "users" WHERE name='Carol White'), 6, 'manha'), -- Saturday morning
+((SELECT id FROM "users" WHERE name='David Black'), 0, 'tarde'), -- Sunday afternoon
+((SELECT id FROM "users" WHERE name='David Black'), 3, 'manha'), -- Wednesday morning
+((SELECT id FROM "users" WHERE name='Eve Green'), 4, 'tarde'), -- Thursday afternoon
+((SELECT id FROM "users" WHERE name='Eve Green'), 5, 'noite'), -- Friday night
+((SELECT id FROM "users" WHERE name='Frank Gray'), 1, 'tarde'), -- Monday afternoon
+((SELECT id FROM "users" WHERE name='Frank Gray'), 6, 'noite'), -- Saturday night
+((SELECT id FROM "users" WHERE name='Grace Blue'), 2, 'manha'), -- Tuesday morning
+((SELECT id FROM "users" WHERE name='Grace Blue'), 4, 'noite'), -- Thursday night
+((SELECT id FROM "users" WHERE name='Hank Violet'), 0, 'manha'), -- Sunday morning
+((SELECT id FROM "users" WHERE name='Hank Violet'), 3, 'tarde'), -- Wednesday afternoon
+((SELECT id FROM "users" WHERE name='Ivy Red'), 5, 'manha'), -- Friday morning
+((SELECT id FROM "users" WHERE name='Ivy Red'), 6, 'tarde'), -- Saturday afternoon
+((SELECT id FROM "users" WHERE name='Jack Orange'), 1, 'noite'), -- Monday night
+((SELECT id FROM "users" WHERE name='Jack Orange'), 3, 'manha'), -- Wednesday morning
+((SELECT id FROM "users" WHERE name='Kate Pink'), 4, 'tarde'); -- Thursday afternoon

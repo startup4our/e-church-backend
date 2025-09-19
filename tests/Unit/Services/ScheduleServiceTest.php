@@ -4,6 +4,7 @@ namespace Tests\Unit\Services;
 
 use App\Enums\ScheduleType;
 use App\Repositories\ScheduleRepository;
+use App\Repositories\ChatRepository;
 use Illuminate\Database\Eloquent\Collection;
 use Tests\TestCase;
 use App\Models\Schedule;
@@ -13,13 +14,15 @@ use Mockery;
 class ScheduleServiceTest extends TestCase
 {
     private $repositoryMock;
+    private $chatRepositoryMock;
     private $service;
 
     protected function setUp(): void
     {
         parent::setUp();
         $this->repositoryMock = Mockery::mock(ScheduleRepository::class);
-        $this->service = new ScheduleService($this->repositoryMock);
+        $this->chatRepositoryMock = Mockery::mock(ChatRepository::class);
+        $this->service = new ScheduleService($this->repositoryMock, $this->chatRepositoryMock);
     }
 
     protected function tearDown(): void
@@ -37,7 +40,7 @@ class ScheduleServiceTest extends TestCase
             'date_time' => '2025-09-01 10:00:00',
             'observation' => 'Note',
             'type' => ScheduleType::LOUVOR,
-            'aproved' => false,
+            'approved' => false,
             'user_creator' => 1
         ];
         $expected = new Schedule($data);
@@ -47,6 +50,11 @@ class ScheduleServiceTest extends TestCase
             ->once()
             ->with($data)
             ->andReturn($expected);
+
+        $this->chatRepositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->andReturn(new \App\Models\Chat());
 
         $result = $this->service->create($data);
 
