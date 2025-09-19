@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Exceptions\AppException;
+use App\Enums\ErrorCode;
 use App\Models\DateException;
 use App\Services\Interfaces\IDateExceptionService;
 use Illuminate\Http\Request;
@@ -17,41 +19,104 @@ class DateExceptionController extends Controller
 
     public function index()
     {
-        return $this->service->listAll();
+        try {
+            $exceptions = $this->service->listAll();
+            return response()->json([
+                'success' => true,
+                'data' => $exceptions
+            ]);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
     }
 
     public function store(Request $request)
     {
-        $data = $request->validate([
-            'exception_date' => 'required|date',
-            'shift' => 'required|in:morning,afternoon,night',
-            'justification' => 'nullable|string',
-            'user_id' => 'required'
-        ]);
+        try {
+            $data = $request->validate([
+                'exception_date' => 'required|date',
+                'shift' => 'required|in:morning,afternoon,night',
+                'justification' => 'nullable|string',
+                'user_id' => 'required'
+            ]);
 
-        $exception = $this->service->create($data);
-        return response()->json($exception, 201);
+            $exception = $this->service->create($data);
+            return response()->json([
+                'success' => true,
+                'data' => $exception
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
     }
 
     public function show($id)
     {
-        return $this->service->get($id);
+        try {
+            $exception = $this->service->get($id);
+            return response()->json([
+                'success' => true,
+                'data' => $exception
+            ]);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::RESOURCE_NOT_FOUND,
+                userMessage: 'Exceção de data não encontrada'
+            );
+        }
     }
 
     public function update(Request $request, DateException $exception)
     {
-        $data = $request->validate([
-            'exception_date' => 'required|date',
-            'shift' => 'required|in:morning,afternoon,night',
-            'justification' => 'nullable|string',
-        ]);
+        try {
+            $data = $request->validate([
+                'exception_date' => 'required|date',
+                'shift' => 'required|in:morning,afternoon,night',
+                'justification' => 'nullable|string',
+            ]);
 
-        return $this->service->update($exception, $data);
+            $updatedException = $this->service->update($exception, $data);
+            return response()->json([
+                'success' => true,
+                'data' => $updatedException
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
     }
 
     public function destroy(DateException $exception)
     {
-        $this->service->delete($exception);
-        return response()->noContent();
+        try {
+            $this->service->delete($exception);
+            return response()->json([
+                'success' => true,
+                'data' => null
+            ], 204);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
     }
 }

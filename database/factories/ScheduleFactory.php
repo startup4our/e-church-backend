@@ -20,7 +20,7 @@ class ScheduleFactory extends Factory
             'date_time' => $this->faker->dateTimeBetween('now', '+1 year'),
             'observation' => $this->faker->optional()->sentence(),
             'type' => $this->faker->randomElement(ScheduleType::values()),
-            'aproved' => $this->faker->boolean(),
+            'approved' => $this->faker->boolean(),
             'user_creator' => User::factory(),
         ];
     }

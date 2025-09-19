@@ -14,7 +14,7 @@ class ScheduleControllerTest extends TestCase
 
     public function test_index_returns_schedules()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['read_scale']);
         $this->authenticate($user);
 
         Schedule::factory()->count(2)->create();
@@ -22,12 +22,18 @@ class ScheduleControllerTest extends TestCase
         $response = $this->getJson('/api/v1/schedules');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(2);
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => [
+                         '*' => ['id', 'name', 'description', 'date_time', 'type']
+                     ]
+                 ])
+                 ->assertJsonCount(2, 'data');
     }
 
     public function test_show_returns_schedule()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['read_scale']);
         $this->authenticate($user);
 
         $schedule = Schedule::factory()->create();
@@ -35,15 +41,18 @@ class ScheduleControllerTest extends TestCase
         $response = $this->getJson("/api/v1/schedules/{$schedule->id}");
 
         $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => ['id', 'name', 'description', 'date_time', 'type']
+                 ])
                  ->assertJsonFragment(['id' => $schedule->id]);
     }
 
     public function test_store_creates_schedule()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['create_scale']);
         $this->authenticate($user);
 
-        $creator = User::factory()->create();
         $data = [
             'name' => 'Test Schedule',
             'description' => 'Description',
@@ -51,13 +60,17 @@ class ScheduleControllerTest extends TestCase
             'date_time' => '2025-09-01 10:00:00',
             'observation' => 'Note',
             'type' => ScheduleType::LOUVOR,
-            'aproved' => false,
-            'user_creator' => $creator->id
+            'approved' => false,
+            'user_creator' => $user->id
         ];
 
         $response = $this->postJson('/api/v1/schedules', $data);
 
         $response->assertStatus(201)
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => ['id', 'name', 'description', 'date_time', 'type']
+                 ])
                  ->assertJsonFragment(['name' => 'Test Schedule']);
 
         $this->assertDatabaseHas('schedule', ['name' => 'Test Schedule']);
@@ -65,7 +78,7 @@ class ScheduleControllerTest extends TestCase
 
     public function test_update_modifies_schedule()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['update_scale']);
         $this->authenticate($user);
 
         $schedule = Schedule::factory()->create(['name' => 'Old']);
@@ -73,6 +86,10 @@ class ScheduleControllerTest extends TestCase
         $response = $this->putJson("/api/v1/schedules/{$schedule->id}", ['name' => 'Updated']);
 
         $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data' => ['id', 'name', 'description', 'date_time', 'type']
+                 ])
                  ->assertJsonFragment(['name' => 'Updated']);
 
         $this->assertDatabaseHas('schedule', ['name' => 'Updated']);
@@ -80,7 +97,7 @@ class ScheduleControllerTest extends TestCase
 
     public function test_destroy_deletes_schedule()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['delete_scale']);
         $this->authenticate($user);
 
         $schedule = Schedule::factory()->create();
