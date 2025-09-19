@@ -14,5 +14,11 @@ class Area extends Model
     protected $fillable = [
         'name',
         'description',
+        'church_id',
     ];
+
+    public function church()
+    {
+        return $this->belongsTo(Church::class);
+    }
 }
