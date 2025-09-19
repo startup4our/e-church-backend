@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Auth;
 
 use App\Enums\UserStatus;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\RegisterChurchRequest;
+use App\Http\Requests\Auth\RegisterChurchRequest;
 use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IChurchService;
 use App\Services\Interfaces\IPermissionService;
@@ -183,7 +183,20 @@ class AuthController extends Controller
     $token = Auth::login($user);
     Log::info('Token gerado com sucesso', ['user_id' => $user->id]);
 
-    return $this->respondWithToken($token);
+    // Get user permission
+    $permissions = $this->permissionService->getUserPermissions($user->id);
+
+    // Get user area
+    $areas = $this->areaService->getUserAreas($user->id);
+
+    return response()->json([
+        'user' => $user,
+        'permissions' => $permissions,
+        'areas' => $areas,
+        'church_id' => $church->id,
+        'access_token' => $token,
+        'token_type' => 'bearer'
+    ]);
 
     }
 }

@@ -21,24 +21,6 @@ class ChurchController extends Controller
         return response()->json($this->churchService->getById($id));
     }
 
-    public function store(Request $request)
-    {
-        $ufs = 'AC,AL,AP,AM,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RS,RO,RR,SC,SP,SE,TO';
-
-        $data = $request->validate([
-            'name'       => ['required','string','max:120'],
-            'cep'        => ['required','regex:/^\d{5}-?\d{3}$/'],
-            'street'     => ['required','string','max:160'],
-            'number'     => ['required','string','max:10'],
-            'complement' => ['nullable','string','max:160'],
-            'quarter'    => ['required','string','max:120'],
-            'city'       => ['required','string','max:120'],
-            'state'      => ['required',"in:$ufs"],
-        ]);
-
-        return response()->json($this->churchService->create(data: $data), 201);
-    }
-
     public function update(Request $request, string $id)
     {
         $ufs = 'AC,AL,AP,AM,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RS,RO,RR,SC,SP,SE,TO';
