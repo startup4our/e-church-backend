@@ -21,12 +21,16 @@ class ChurchControllerTest extends TestCase
         $response = $this->getJson('/api/v1/churches');
 
         $response->assertStatus(200)
-                 ->assertJsonCount(3); //3 because userfactory creates one too
+                 ->assertJsonStructure([
+                     'success',
+                     'data'
+                 ])
+                 ->assertJsonCount(3, 'data'); // 2 created + 1 from user factory
     }
 
     public function test_show_returns_church()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['manage_church_settings']);
         $this->authenticate($user);
 
         $church = Church::factory()->create();
@@ -34,12 +38,16 @@ class ChurchControllerTest extends TestCase
         $response = $this->getJson("/api/v1/churches/{$church->id}");
 
         $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data'
+                 ])
                  ->assertJsonFragment(['id' => $church->id]);
     }
 
     public function test_store_creates_church()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['manage_church_settings']);
         $this->authenticate($user);
 
         $data = [
@@ -56,6 +64,10 @@ class ChurchControllerTest extends TestCase
         $response = $this->postJson('/api/v1/churches', $data);
 
         $response->assertStatus(201)
+                 ->assertJsonStructure([
+                     'success',
+                     'data'
+                 ])
                  ->assertJsonFragment(['name' => 'Igreja Central']);
 
         $this->assertDatabaseHas('church', ['name' => 'Igreja Central', 'city' => 'Itajubá']);
@@ -63,7 +75,7 @@ class ChurchControllerTest extends TestCase
 
     public function test_update_modifies_church()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['manage_church_settings']);
         $this->authenticate($user);
 
         $church = Church::factory()->create(['name' => 'Antiga']);
@@ -73,6 +85,10 @@ class ChurchControllerTest extends TestCase
         ]);
 
         $response->assertStatus(200)
+                 ->assertJsonStructure([
+                     'success',
+                     'data'
+                 ])
                  ->assertJsonFragment(['name' => 'Atualizada']);
 
         $this->assertDatabaseHas('church', ['id' => $church->id, 'name' => 'Atualizada']);
@@ -80,7 +96,7 @@ class ChurchControllerTest extends TestCase
 
     public function test_destroy_deletes_church()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['manage_church_settings']);
         $this->authenticate($user);
 
         $church = Church::factory()->create();

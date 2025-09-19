@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\Area;
+use App\Models\Church;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 class AreaFactory extends Factory
@@ -14,6 +15,7 @@ class AreaFactory extends Factory
         return [
             'name' => $this->faker->word(),
             'description' => $this->faker->sentence(),
+            'church_id' => Church::factory(),
         ];
     }
 }
