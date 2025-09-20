@@ -3,26 +3,14 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: echurch_server
-    volumes:
-      - .:/var/www
-    networks:
-      - laravel
-
-  nginx:
-    image: nginx:1.25
-    container_name: laravel_nginx
+    container_name: echurch_app
     ports:
-      - "8000:80"
+      - "8000:80" # mapeia porta 80 do container para 8000 do host
     volumes:
-      - .:/var/www
-      - ./default.conf:/etc/nginx/conf.d/default.conf
-
-    depends_on:
-      - app
+      - .:/var/www/html  # mantém volume para desenvolvimento
     networks:
       - laravel
 
 networks:
   laravel:
-
+    driver: bridge
