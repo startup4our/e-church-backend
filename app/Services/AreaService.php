@@ -5,17 +5,21 @@ namespace App\Services;
 use App\Models\Area;
 use App\Models\UserArea;
 use App\Repositories\AreaRepository;
+use App\Repositories\ChatRepository;
 use App\Services\Interfaces\IAreaService;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class AreaService implements IAreaService
 {
     private AreaRepository $repository;
+    private ChatRepository $chatRepository;
 
-    public function __construct(AreaRepository $repository)
+    public function __construct(AreaRepository $repository, ChatRepository $chatRepository)
     {
         $this->repository = $repository;
+        $this->chatRepository = $chatRepository;
     }
 
     public function create(array $data): Area
@@ -23,9 +27,25 @@ class AreaService implements IAreaService
         Log::info("Creating new area with data: " . json_encode($data));
         
         try {
-            $area = $this->repository->create($data);
-            Log::info("Area [{$area->id}] '{$area->name}' created successfully");
-            return $area;
+            return DB::transaction(function () use ($data) {
+                
+                // Criar a área
+                $area = $this->repository->create($data);
+                Log::info("Area [{$area->id}] '{$area->name}' created successfully");
+                
+                // Criar o chat padrão para a área
+                $chatData = [
+                    'name' => 'Chat Geral - ' . $area->name,
+                    'description' => 'Chat geral da área ' . $area->name,
+                    'chatable_id' => $area->id,
+                    'chatable_type' => ChatType::AREA->value,
+                ];
+
+                $chat = $this->chatRepository->create($chatData);
+                Log::info("Default chat created successfully for area [{$area->id}] with chat ID: {$chat->id}");
+
+                return $area;
+            });
         } catch (\Exception $e) {
             Log::error("Failed to create area: " . $e->getMessage());
             throw $e;

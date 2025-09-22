@@ -7,6 +7,7 @@ use App\Enums\ErrorCode;
 use App\Models\Permission;
 use App\Services\Interfaces\IPermissionService;
 use Illuminate\Http\Request;
+use app\Http\Requests\PermissionRequest.php
 
 class PermissionController extends Controller
 {
@@ -33,31 +34,10 @@ class PermissionController extends Controller
         }
     }
 
-    public function store(Request $request)
+    public function store(PermissionRequest $request)
     {
         try {
-            $data = $request->validate([
-                'user_id' => 'required|exists:users,id',
-                'create_scale' => 'boolean',
-                'read_scale' => 'boolean',
-                'update_scale' => 'boolean',
-                'delete_scale' => 'boolean',
-                'create_music' => 'boolean',
-                'read_music' => 'boolean',
-                'update_music' => 'boolean',
-                'delete_music' => 'boolean',
-                'create_role' => 'boolean',
-                'read_role' => 'boolean',
-                'update_role' => 'boolean',
-                'delete_role' => 'boolean',
-                'create_area' => 'boolean',
-                'read_area' => 'boolean',
-                'update_area' => 'boolean',
-                'delete_area' => 'boolean',
-                'manage_users' => 'boolean',
-                'manage_church_settings' => 'boolean',
-                'manage_app_settings' => 'boolean',
-            ]);
+            $data = $request->validate();
 
             $permission = $this->service->create($data);
             return response()->json([
@@ -96,27 +76,7 @@ class PermissionController extends Controller
     public function update(Request $request, Permission $permission)
     {
         try {
-            $data = $request->validate([
-                'create_scale' => 'boolean',
-                'read_scale' => 'boolean',
-                'update_scale' => 'boolean',
-                'delete_scale' => 'boolean',
-                'create_music' => 'boolean',
-                'read_music' => 'boolean',
-                'update_music' => 'boolean',
-                'delete_music' => 'boolean',
-                'create_role' => 'boolean',
-                'read_role' => 'boolean',
-                'update_role' => 'boolean',
-                'delete_role' => 'boolean',
-                'create_area' => 'boolean',
-                'read_area' => 'boolean',
-                'update_area' => 'boolean',
-                'delete_area' => 'boolean',
-                'manage_users' => 'boolean',
-                'manage_church_settings' => 'boolean',
-                'manage_app_settings' => 'boolean',
-            ]);
+            $data = $request->validate();
 
             $updatedPermission = $this->service->update($permission, $data);
             return response()->json([
