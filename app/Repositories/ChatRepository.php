@@ -50,30 +50,36 @@ class ChatRepository
      * Get all chats for user - search in area and schedules chats
      * @param int $user_id
      * @param array $areas
-     * @return Collection|\Illuminate\Database\Eloquent\Builder[]
+     * @return Collection
      */
     public function getAllByUser(int $user_id, array $areas): Collection
     {
         // Chats of Areas
         $areaChats = Chat::query()
-            ->where('chatable_type', ChatType::AREA->value)
+            ->where('chatable_type', 'A')
             ->whereIn('chatable_id', $areas)
             ->get();
 
-        
         // Chats of Schedules
         $userScheduleIds = UserSchedule::query()
-        ->where('user_id', $user_id)
-        ->pluck('schedule_id');
+            ->where('user_id', $user_id)
+            ->pluck('schedule_id');
 
         $scheduleChats = Chat::query()
-            ->where('chatable_type', ChatType::SCALE->value) 
+            ->where('chatable_type', 'S')
             ->whereIn('chatable_id', $userScheduleIds)       
             ->get();
 
         return $areaChats->merge($scheduleChats);
-    } 
+    }
 
-
-
+    /**
+     * Buscar chat específico de uma área
+     */
+    public function getChatByArea(int $areaId): ?Chat
+    {
+        return $this->model->where('chatable_type', 'A')
+                          ->where('chatable_id', $areaId)
+                          ->first();
+    }
 }

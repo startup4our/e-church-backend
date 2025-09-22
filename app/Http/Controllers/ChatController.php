@@ -32,16 +32,29 @@ class ChatController extends Controller
         ]);
     }
 
-    public function show($id)
+    public function show($id, Request $request)
     {
         Log::info("Request to show chat", ['chat_id' => $id]);
 
         try {
+            $userId = $request->input('user_id');
+            
+            // Verificar se usuário tem acesso ao chat baseado nas áreas
+            if ($userId && !$this->service->userHasAccessToChat($userId, $id)) {
+                Log::warning("User [{$userId}] tried to access chat [{$id}] but doesn't belong to the area/schedule");
+                throw new AppException(
+                    ErrorCode::PERMISSION_DENIED,
+                    userMessage: 'Você não tem acesso a este chat'
+                );
+            }
+
             $chat = $this->service->getById($id);
             return response()->json([
                 'success' => true,
                 'data' => $chat
             ]);
+        } catch (AppException $e) {
+            throw $e;
         } catch (\Exception $e) {
             Log::error("Failed to retrieve chat [{$id}]: " . $e->getMessage());
             throw new AppException(
@@ -106,6 +119,15 @@ class ChatController extends Controller
                 'user_updater' => 'required|integer|exists:users,id',
             ]);
 
+            // Verificar se usuário tem acesso ao chat baseado nas áreas
+            if (!$this->service->userHasAccessToChat($validated['user_updater'], $id)) {
+                Log::warning("User [{$validated['user_updater']}] tried to update chat [{$id}] but doesn't belong to the area/schedule");
+                throw new AppException(
+                    ErrorCode::PERMISSION_DENIED,
+                    userMessage: 'Você não tem acesso a este chat'
+                );
+            }
+
             $hasPermission = $this->permissionService->hasPermission($validated['user_updater'], 'update_chat');
             if (!$hasPermission) {
                 Log::warning("User [{$validated['user_updater']}] tried to update chat [{$id}] but does not have permission");
@@ -139,11 +161,20 @@ class ChatController extends Controller
 
     public function destroy($id, Request $request)
     {
-        $userId = $request->input('user_id'); // quem está tentando deletar
+        $userId = $request->input('user_id');
 
         Log::info("Request to delete chat", ['chat_id' => $id, 'user_id' => $userId]);
 
         try {
+            // Verificar se usuário tem acesso ao chat baseado nas áreas
+            if ($userId && !$this->service->userHasAccessToChat($userId, $id)) {
+                Log::warning("User [{$userId}] tried to delete chat [{$id}] but doesn't belong to the area/schedule");
+                throw new AppException(
+                    ErrorCode::PERMISSION_DENIED,
+                    userMessage: 'Você não tem acesso a este chat'
+                );
+            }
+
             $hasPermission = $this->permissionService->hasPermission($userId, 'delete_chat');
             if (!$hasPermission) {
                 Log::warning("User [{$userId}] tried to delete chat [{$id}] but does not have permission");
@@ -175,11 +206,11 @@ class ChatController extends Controller
         try {
             $validated = $request->validate([
                 'user_id' => 'required|integer',
-                'areas'   => 'array',
+                'areas'   => 'sometimes|array', 
             ]);
 
             $userId = $validated['user_id'];
-            $areas  = $validated['areas'] ?? [];
+            $areas  = $validated['areas'] ?? []; // se não fornecido, será buscado automaticamente
 
             Log::info("Request to get chats for user", ['user_id' => $userId, 'areas' => $areas]);
 
