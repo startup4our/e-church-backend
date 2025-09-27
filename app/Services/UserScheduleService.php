@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\DTO\AvailableUserScheduleDTO;
 use App\Models\DTO\ScheduleDTO;
 use App\Models\DTO\UserScheduleDetailsDTO;
 use App\Models\UserSchedule;
@@ -29,6 +30,14 @@ class UserScheduleService implements IUserScheduleService
         return $this->repository->getAll();
     }
 
+    public function getAvailableUsers(): SupportCollection
+    {
+        $users = $this->repository->getAvailableUsers();
+        $users = $users->map(fn($user) => new AvailableUserScheduleDTO($user));
+
+        return $users;
+    }
+
     public function getAllSchedules(): SupportCollection
     {
         $schedules = $this->repository->getAllSchedules();
@@ -42,6 +51,13 @@ class UserScheduleService implements IUserScheduleService
         return $this->repository->getById($id);
     }
 
+    public function getScheduleByScheduleId(int $id): ScheduleDTO
+    {
+        $schedule = $this->repository->getScheduleByScheduleId($id);
+
+        return new ScheduleDTO($schedule);
+    }
+
     public function getUsersByScheduleId(int $id): SupportCollection
     {
         $users = $this->repository->getUsersByScheduleId($id);
@@ -53,6 +69,11 @@ class UserScheduleService implements IUserScheduleService
     public function update(array $data): UserSchedule
     {
         return $this->repository->update($data);
+    }
+
+    public function deleteUserFromSchedule(array $data): bool
+    {
+        return $this->repository->deleteUserFromSchedule($data);
     }
 
     public function delete(int $id): bool
