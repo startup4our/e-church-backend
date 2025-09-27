@@ -34,6 +34,22 @@ class UserScheduleController extends Controller
         }
     }
 
+    public function getAvailableUsers()
+    {
+        try {
+            $users = $this->userScheduleService->getAvailableUsers();
+            return response()->json([
+                'success' => true,
+                'data' => $users
+            ]);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
     public function getAllSchedules()
     {
         try {
@@ -54,6 +70,22 @@ class UserScheduleController extends Controller
     {
         try {
             $userSchedule = $this->userScheduleService->getById($id);
+            return response()->json([
+                'success' => true,
+                'data' => $userSchedule
+            ]);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::RESOURCE_NOT_FOUND,
+                userMessage: 'Agendamento de usuário não encontrado'
+            );
+        }
+    }
+
+    public function getScheduleByScheduleId(int $id)
+    {
+        try {
+            $userSchedule = $this->userScheduleService->getScheduleByScheduleId($id);
             return response()->json([
                 'success' => true,
                 'data' => $userSchedule
@@ -105,6 +137,34 @@ class UserScheduleController extends Controller
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    public function addUserInSchedule(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'area_id' => 'required|integer|exists:area,id',
+                'schedule_id' => 'required|integer|exists:schedule,id',
+                'user_id' => 'required|integer|exists:users,id',
+            ]);
+
+            $userSchedule = $this->userScheduleService->create($data);
+            return response()->json([
+                'success' => true,
+                'data' => $userSchedule
+            ], 201);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor',
+                details: [$e->getMessage()]
             );
         }
     }
@@ -163,6 +223,33 @@ class UserScheduleController extends Controller
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    public function removeUserFromSchedule(Request $request)
+    {
+        try {
+            $data = $request->validate([
+                'schedule_id' => 'required|integer|exists:schedule,id',
+                'user_id' => 'required|integer|exists:users,id',
+            ]);
+
+            $isDeleted = $this->userScheduleService->deleteUserFromSchedule($data);
+            return response()->json([
+                'success' => $isDeleted,
+                'data' => null
+            ], 204);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor',
+                details: [$e->getMessage()]
             );
         }
     }

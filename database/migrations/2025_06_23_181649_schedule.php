@@ -16,8 +16,9 @@ return new class extends Migration
             $table->id();
             $table->string('name');
             $table->string('description');
-            $table->string('local')->nullable();
-            $table->dateTime('date_time');
+            $table->string('local');
+            $table->dateTime('start_date');
+            $table->dateTime('end_date');
             $table->string('observation')->nullable();
             $table->enum('type', ScheduleType::values());
             $table->boolean('approved')->default(false);

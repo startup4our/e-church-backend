@@ -15,7 +15,8 @@ class Schedule extends Model
         'name',
         'description',
         'local',
-        'date_time',
+        'start_date',
+        'end_date',
         'observation',
         'type',
         'approved',
@@ -25,7 +26,8 @@ class Schedule extends Model
     protected $casts = [
         'type' => ScheduleType::class,
         'approved' => 'boolean',
-        'date_time' => 'datetime',
+        'start_date' => 'datetime',
+        'end_date' => 'datetime',
     ];
 
     /**

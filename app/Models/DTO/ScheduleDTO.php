@@ -13,7 +13,8 @@ class ScheduleDTO
     public string $name;
     public ?string $description;
     public ?string $local;
-    public ?string $date_time;
+    public ?string $start_date;
+    public ?string $end_date;
     public ?string $observation;
     public ScheduleType $type;
     public ?UserScheduleStatus $status;
