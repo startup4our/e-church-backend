@@ -46,6 +46,11 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     // DELETE /api/v1/areas/{id}
     Route::get('user-schedules/show-all-schedules', [UserScheduleController::class, 'getAllSchedules']);
     Route::get('user-schedules/show-users-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getUsersByScheduleId']);
+    Route::get('user-schedules/show-schedule-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getScheduleByScheduleId']);
+    Route::get('user-schedules/show-available-users', [UserScheduleController::class, 'getAvailableUsers']);
+    Route::post('user-schedules/add-user-in-schedule', [UserScheduleController::class, 'addUserInSchedule']);
+    Route::delete('user-schedules/remove-user-in-schedule', [UserScheduleController::class, 'removeUserInSchedule']);
+    Route::delete('user-schedules/remove-user-from-schedule', [UserScheduleController::class, 'removeUserFromSchedule']);
     Route::patch('user-schedules/update-status', [UserScheduleController::class, 'updateStatus']);
 
     Route::apiResource('areas', AreaController::class);

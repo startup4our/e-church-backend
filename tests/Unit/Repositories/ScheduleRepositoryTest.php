@@ -31,7 +31,7 @@ class ScheduleRepositoryTest extends TestCase
             'date_time' => '2025-09-01 10:00:00',
             'observation' => 'Note',
             'type' => ScheduleType::LOUVOR,
-            'aproved' => false,
+            'approved' => false,
             'user_creator' => $user->id
         ];
 
