@@ -20,6 +20,7 @@ use App\Http\Controllers\LinkController;
 use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserScheduleController;
+use App\Http\Controllers\UserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -47,6 +48,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::get('user-schedules/show-all-schedules', [UserScheduleController::class, 'getAllSchedules']);
     Route::get('user-schedules/show-users-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getUsersByScheduleId']);
     Route::get('user-schedules/show-schedule-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getScheduleByScheduleId']);
+    Route::get('user-schedules/show-schedule-by-schedule/create', [UserScheduleController::class, 'store']);
     Route::get('user-schedules/show-available-users', [UserScheduleController::class, 'getAvailableUsers']);
     Route::post('user-schedules/add-user-in-schedule', [UserScheduleController::class, 'addUserInSchedule']);
     Route::delete('user-schedules/remove-user-in-schedule', [UserScheduleController::class, 'removeUserInSchedule']);
@@ -54,6 +56,8 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::patch('user-schedules/update-status', [UserScheduleController::class, 'updateStatus']);
 
     Route::apiResource('areas', AreaController::class);
+    Route::get('areas/{id}/users', [AreaController::class, 'getUsers']);
+    Route::put('areas/{areaId}/users/{userId}/switch', [AreaController::class, 'switchUserArea']);
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
     Route::apiResource('songs', SongController::class);
@@ -64,11 +68,23 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('permission', PermissionController::class);
     Route::apiResource('links', LinkController::class);
     Route::apiResource('recordings', RecordingController::class);
-    Route::apiResource('schedules', ScheduleController::class);
+    // Route::apiResource('schedules', ScheduleController::class);
 
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
 
     Route::post('chats/user/', [ChatController::class, 'getChats']);
+
+    // User profile routes
+    Route::get('users/profile', [UserController::class, 'profile']);
+    Route::put('users/profile', [UserController::class, 'updateProfile']);
+
+    // User management routes
+    Route::get('users/by-church', [UserController::class, 'getUsersByChurch']);
+    Route::put('users/{id}', [UserController::class, 'updateUser']);
+    Route::patch('users/{id}/toggle-status', [UserController::class, 'toggleUserStatus']);
+
+    // Permission routes
+    Route::put('permission/user/{userId}', [PermissionController::class, 'updateByUserId']);
 
 });
 

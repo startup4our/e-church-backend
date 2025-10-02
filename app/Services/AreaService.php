@@ -7,6 +7,7 @@ use App\Models\UserArea;
 use App\Repositories\AreaRepository;
 use App\Repositories\ChatRepository;
 use App\Services\Interfaces\IAreaService;
+use App\Enums\ChatType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -124,14 +125,14 @@ class AreaService implements IAreaService
 
     public function updateByIdAndChurchId(int $id, int $churchId, array $data): Area
     {
-        Log::info("Updating area [{$id}] for church [{$churchId}] with data: " . json_encode($data));
+        Log::info("Attempting to update area [{$id}] details for church [{$churchId}] with new data: " . json_encode($data));
         
         try {
             $area = $this->repository->updateByIdAndChurchId($id, $churchId, $data);
-            Log::info("Area [{$id}] updated successfully for church [{$churchId}]");
+            Log::info("Area [{$id}] '{$area->name}' details updated successfully for church [{$churchId}]");
             return $area;
         } catch (\Exception $e) {
-            Log::error("Failed to update area [{$id}] for church [{$churchId}]: " . $e->getMessage());
+            Log::error("Failed to update area [{$id}] details for church [{$churchId}] because: " . $e->getMessage());
             throw $e;
         }
     }
@@ -183,6 +184,70 @@ class AreaService implements IAreaService
         $areas = $this->repository->getUserArea($user_id);
         Log::info("Retrieved " . $areas->count() . " areas for user [{$user_id}]");
         return $areas;
+    }
+
+    public function getUsersByAreaId(int $areaId, int $churchId): Collection
+    {
+        Log::info("Retrieving users for area [{$areaId}] in church [{$churchId}]");
+        
+        try {
+            // First verify the area belongs to the church
+            $area = $this->repository->getByIdAndChurchId($areaId, $churchId);
+            
+            // Get users from the area
+            $users = UserArea::with(['user'])
+                ->where('area_id', $areaId)
+                ->get()
+                ->map(function ($userArea) {
+                    return [
+                        'id' => $userArea->user->id,
+                        'name' => $userArea->user->name,
+                        'email' => $userArea->user->email,
+                        'status' => $userArea->user->status->value,
+                        'photo_path' => $userArea->user->photo_path,
+                        'birthday' => $userArea->user->birthday,
+                    ];
+                });
+            
+            Log::info("Retrieved " . $users->count() . " users from area [{$areaId}] in church [{$churchId}]");
+            return $users;
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve users from area [{$areaId}] in church [{$churchId}]: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function switchUserArea(int $userId, int $currentAreaId, int $newAreaId, int $churchId): void
+    {
+        Log::info("Switching user [{$userId}] from area [{$currentAreaId}] to area [{$newAreaId}] in church [{$churchId}]");
+        
+        try {
+            DB::transaction(function () use ($userId, $currentAreaId, $newAreaId, $churchId) {
+                // Verify both areas belong to the church
+                $currentArea = $this->repository->getByIdAndChurchId($currentAreaId, $churchId);
+                $newArea = $this->repository->getByIdAndChurchId($newAreaId, $churchId);
+                
+                // Remove user from current area
+                UserArea::where('user_id', $userId)
+                    ->where('area_id', $currentAreaId)
+                    ->delete();
+                
+                Log::info("User [{$userId}] removed from area [{$currentAreaId}]");
+                
+                // Add user to new area
+                UserArea::create([
+                    'user_id' => $userId,
+                    'area_id' => $newAreaId,
+                ]);
+                
+                Log::info("User [{$userId}] added to area [{$newAreaId}]");
+            });
+            
+            Log::info("User [{$userId}] successfully switched from area [{$currentAreaId}] to area [{$newAreaId}]");
+        } catch (\Exception $e) {
+            Log::error("Failed to switch user [{$userId}] from area [{$currentAreaId}] to area [{$newAreaId}]: " . $e->getMessage());
+            throw $e;
+        }
     }
 
 }

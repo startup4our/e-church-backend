@@ -26,4 +26,8 @@ interface IAreaService
     public function deleteByIdAndChurchId(int $id, int $churchId): bool;
 
     public function getUserAreas(int $user_id): Collection|Area;
+
+    public function getUsersByAreaId(int $areaId, int $churchId): Collection;
+
+    public function switchUserArea(int $userId, int $currentAreaId, int $newAreaId, int $churchId): void;
 }
