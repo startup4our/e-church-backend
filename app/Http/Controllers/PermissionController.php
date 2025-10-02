@@ -6,8 +6,7 @@ use App\Exceptions\AppException;
 use App\Enums\ErrorCode;
 use App\Models\Permission;
 use App\Services\Interfaces\IPermissionService;
-use Illuminate\Http\Request;
-use app\Http\Requests\PermissionRequest.php
+use App\Http\Requests\Auth\UpdatePermissionRequest;
 
 class PermissionController extends Controller
 {
@@ -34,21 +33,14 @@ class PermissionController extends Controller
         }
     }
 
-    public function store(PermissionRequest $request)
+    public function store(UpdatePermissionRequest $request)
     {
         try {
-            $data = $request->validate();
-
-            $permission = $this->service->create($data);
+            $permission = $this->service->create($request->validated());
             return response()->json([
                 'success' => true,
                 'data' => $permission
             ], 201);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            throw new AppException(
-                ErrorCode::VALIDATION_ERROR,
-                details: $e->errors()
-            );
         } catch (\Exception $e) {
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
@@ -73,21 +65,14 @@ class PermissionController extends Controller
         }
     }
 
-    public function update(Request $request, Permission $permission)
+    public function update(UpdatePermissionRequest $request, Permission $permission)
     {
         try {
-            $data = $request->validate();
-
-            $updatedPermission = $this->service->update($permission, $data);
+            $updatedPermission = $this->service->update($permission, $request->validated());
             return response()->json([
                 'success' => true,
                 'data' => $updatedPermission
             ]);
-        } catch (\Illuminate\Validation\ValidationException $e) {
-            throw new AppException(
-                ErrorCode::VALIDATION_ERROR,
-                details: $e->errors()
-            );
         } catch (\Exception $e) {
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
@@ -108,6 +93,34 @@ class PermissionController extends Controller
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    public function updateByUserId(UpdatePermissionRequest $request, int $userId)
+    {
+        try {
+            // Buscar permission pelo user_id
+            $permission = Permission::where('user_id', $userId)->first();
+
+            if (!$permission) {
+                throw new AppException(
+                    ErrorCode::RESOURCE_NOT_FOUND,
+                    userMessage: 'Permissões do usuário não encontradas'
+                );
+            }
+
+            $updatedPermission = $this->service->update($permission, $request->validated());
+
+            return response()->json([
+                'success' => true,
+                'data' => $updatedPermission,
+                'message' => 'Permissões atualizadas com sucesso'
+            ]);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao atualizar permissões'
             );
         }
     }

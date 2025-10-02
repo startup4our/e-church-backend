@@ -98,10 +98,10 @@ class UserScheduleController extends Controller
         }
     }
 
-    public function getUsersByScheduleId(int $id)
+    public function getUsersByScheduleId(string $id)
     {
         try {
-            $users = $this->userScheduleService->getUsersByScheduleId($id);
+            $users = $this->userScheduleService->getUsersByScheduleId(intval($id));
             return response()->json([
                 'success' => true,
                 'data' => $users

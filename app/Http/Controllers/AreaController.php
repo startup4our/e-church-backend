@@ -114,7 +114,7 @@ class AreaController extends Controller
             );
         }
 
-        Log::info("User [{$user->id}] attempting to update area [{$id}]");
+        Log::info("User [{$user->id}] attempted to update area [{$id}] details");
 
         try {
             $data = $request->validate([
@@ -123,20 +123,20 @@ class AreaController extends Controller
             ]);
 
             $area = $this->areaService->updateByIdAndChurchId($id, $user->church_id, $data);
-            Log::info("Area [{$id}] '{$area->name}' updated successfully by user [{$user->id}]");
+            Log::info("User [{$user->id}] successfully updated area [{$id}] '{$area->name}' details");
             
             return response()->json([
                 'success' => true,
                 'data' => $area
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
-            Log::warning("Area update validation failed for user [{$user->id}] on area [{$id}]: " . json_encode($e->errors()));
+            Log::warning("User [{$user->id}] failed to update area [{$id}] because of validation errors: " . json_encode($e->errors()));
             throw new AppException(
                 ErrorCode::VALIDATION_ERROR,
                 details: $e->errors()
             );
         } catch (\Exception $e) {
-            Log::error("Failed to update area [{$id}] for user [{$user->id}]: " . $e->getMessage());
+            Log::error("User [{$user->id}] failed to update area [{$id}] because: " . $e->getMessage());
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
@@ -157,18 +157,92 @@ class AreaController extends Controller
             );
         }
 
-        Log::info("User [{$user->id}] attempting to delete area [{$id}]");
+        Log::info("User [{$user->id}] attempted to delete area [{$id}]");
 
         try {
             $this->areaService->deleteByIdAndChurchId($id, $user->church_id);
-            Log::info("Area [{$id}] deleted successfully by user [{$user->id}]");
+            Log::info("User [{$user->id}] successfully deleted area [{$id}]");
             
             return response()->json([
                 'success' => true,
                 'data' => null
             ], 204);
         } catch (\Exception $e) {
-            Log::error("Failed to delete area [{$id}] for user [{$user->id}]: " . $e->getMessage());
+            Log::error("User [{$user->id}] failed to delete area [{$id}] because: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: $e->getMessage()
+            );
+        }
+    }
+
+    public function getUsers(int $id)
+    {
+        $user = Auth::user();
+        
+        // Check if user has permission to read areas
+        if (!$this->permissionService->hasPermission($user->id, 'read_area')) {
+            Log::warning("User [{$user->id}] attempted to view users in area [{$id}] without permission");
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para visualizar usuários das áreas'
+            );
+        }
+
+        Log::info("User [{$user->id}] requested to view users in area [{$id}]");
+
+        try {
+            $areaUsers = $this->areaService->getUsersByAreaId($id, $user->church_id);
+            Log::info("User [{$user->id}] successfully retrieved " . $areaUsers->count() . " users from area [{$id}]");
+            
+            return response()->json([
+                'success' => true,
+                'data' => $areaUsers
+            ]);
+        } catch (\Exception $e) {
+            Log::error("User [{$user->id}] failed to retrieve users from area [{$id}] because: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::AREA_NOT_FOUND,
+                userMessage: 'Área não encontrada'
+            );
+        }
+    }
+
+    public function switchUserArea(Request $request, int $areaId, int $userId)
+    {
+        $user = Auth::user();
+        
+        // Check if user has permission to update areas
+        if (!$this->permissionService->hasPermission($user->id, 'update_area')) {
+            Log::warning("User [{$user->id}] attempted to switch user [{$userId}] to area [{$areaId}] without permission");
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para gerenciar usuários das áreas'
+            );
+        }
+
+        Log::info("User [{$user->id}] attempted to switch user [{$userId}] to area [{$areaId}]");
+
+        try {
+            $data = $request->validate([
+                'new_area_id' => 'required|integer|exists:area,id',
+            ]);
+
+            $this->areaService->switchUserArea($userId, $areaId, $data['new_area_id'], $user->church_id);
+            Log::info("User [{$user->id}] successfully switched user [{$userId}] from area [{$areaId}] to area [{$data['new_area_id']}]");
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário movido para nova área com sucesso'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning("User [{$user->id}] failed to switch user [{$userId}] to area [{$areaId}] because of validation errors: " . json_encode($e->errors()));
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            Log::error("User [{$user->id}] failed to switch user [{$userId}] to area [{$areaId}] because: " . $e->getMessage());
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
