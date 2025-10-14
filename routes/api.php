@@ -21,6 +21,7 @@ use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\UserScheduleController;
 use App\Http\Controllers\UserController;
+use App\Http\Controllers\StorageController;
 
 /*
 |--------------------------------------------------------------------------
@@ -85,6 +86,9 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     // Permission routes
     Route::put('permission/user/{userId}', [PermissionController::class, 'updateByUserId']);
+
+    // Storage routes
+    Route::post('storage/change-user-photo', [StorageController::class, 'changeUserPhoto']);
 
 });
 
