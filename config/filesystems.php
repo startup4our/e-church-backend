@@ -56,6 +56,15 @@ return [
             'throw' => false,
         ],
 
+        'gcs' => [
+            'driver' => 'gcs',
+            'project_id' => env('GOOGLE_PROJECT_ID'),
+            'client_email' => env('GOOGLE_CLIENT_EMAIL'),
+            'private_key' => env('GOOGLE_PRIVATE_KEY'),
+            'bucket' => env('GOOGLE_STORAGE_BUCKET', 'echurchstorage'),
+            'throw' => false,
+        ],
+
     ],
 
     /*

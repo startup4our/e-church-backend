@@ -10,6 +10,7 @@ use App\Http\Requests\Auth\RegisterChurchRequest;
 use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IChurchService;
 use App\Services\Interfaces\IPermissionService;
+use App\Services\Interfaces\IStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -22,14 +23,16 @@ class AuthController extends Controller
     protected IAreaService $areaService;
     protected IPermissionService $permissionService;
     protected IChurchService $churchService;
+    protected IStorageService $storageService;
 
     private string $ufs = 'AC,AL,AP,AM,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RS,RO,RR,SC,SP,SE,TO';
 
-    public function __construct(IAreaService $areaService, IPermissionService $permissionService, IChurchService $churchService)
+    public function __construct(IAreaService $areaService, IPermissionService $permissionService, IChurchService $churchService, IStorageService $storageService)
     {
         $this->areaService = $areaService;
         $this->permissionService = $permissionService;
         $this->churchService = $churchService;
+        $this->storageService = $storageService;
     }
     public function login(Request $request)
     {
@@ -69,10 +72,29 @@ class AuthController extends Controller
 
                 case UserStatus::ACTIVE:
                     Log::info("User [{$user->id}] has made login");
+                    
+                    // Get signed URL for photo if exists
+                    $photoUrl = null;
+                    if ($user->photo_path) {
+                        try {
+                            $photoUrl = $this->storageService->getSignedUrl($user->photo_path, 60);
+                        } catch (\Exception $e) {
+                            Log::warning('Failed to generate signed URL for user photo on login', [
+                                'user_id' => $user->id,
+                                'photo_path' => $user->photo_path,
+                                'error' => $e->getMessage()
+                            ]);
+                        }
+                    }
+
+                    // Add photo_url to user object
+                    $userData = $user->toArray();
+                    $userData['photo_url'] = $photoUrl;
+                    
                     return response()->json([
                         'success' => true,
                         'data' => [
-                            'user' => $user,
+                            'user' => $userData,
                             'permissions' => $permissions,
                             'areas' => $areas,
                             'access_token' => $token,
@@ -249,10 +271,28 @@ class AuthController extends Controller
             // Get user area
             $areas = $this->areaService->getUserAreas($user->id);
 
+            // Get signed URL for photo if exists
+            $photoUrl = null;
+            if ($user->photo_path) {
+                try {
+                    $photoUrl = $this->storageService->getSignedUrl($user->photo_path, 60);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to generate signed URL for user photo on register church', [
+                        'user_id' => $user->id,
+                        'photo_path' => $user->photo_path,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
+            // Add photo_url to user object
+            $userData = $user->toArray();
+            $userData['photo_url'] = $photoUrl;
+
             return response()->json([
                 'success' => true,
                 'data' => [
-                    'user' => $user,
+                    'user' => $userData,
                     'permissions' => $permissions,
                     'areas' => $areas,
                     'church_id' => $church->id,
