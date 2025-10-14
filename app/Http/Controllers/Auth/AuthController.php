@@ -41,8 +41,8 @@ class AuthController extends Controller
             $this->churchService = $churchService;
             $this->inviteService = $inviteService;
             $this->storageService = $storageService;
+        }
 
-    }
     public function login(Request $request)
     {
         try {
