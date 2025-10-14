@@ -7,16 +7,19 @@ use App\Enums\ErrorCode;
 use App\Enums\UserStatus;
 use App\Models\User;
 use App\Services\Interfaces\IPermissionService;
+use App\Services\Interfaces\IStorageService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
     protected IPermissionService $permissionService;
+    protected IStorageService $storageService;
 
-    public function __construct(IPermissionService $permissionService)
+    public function __construct(IPermissionService $permissionService, IStorageService $storageService)
     {
         $this->permissionService = $permissionService;
+        $this->storageService = $storageService;
     }
 
     public function profile()
@@ -37,12 +40,28 @@ class UserController extends Controller
             // Get user permissions
             $permissions = $this->permissionService->getUserPermissions($user->id);
 
+            // Get signed URL for photo if exists
+            $photoUrl = null;
+            if ($user->photo_path) {
+                try {
+                $photoUrl = $this->storageService->getSignedUrl($user->photo_path, 60);
+                } catch (\Exception $e) {
+                    // Log error but don't fail the request
+                    \Log::warning('Failed to generate signed URL for user photo', [
+                        'user_id' => $user->id,
+                        'photo_path' => $user->photo_path,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+
             // Format the response
             $profileData = [
                 'id' => $user->id,
                 'name' => $user->name,
                 'email' => $user->email,
                 'photo_path' => $user->photo_path,
+                'photo_url' => $photoUrl, // Signed URL for immediate use
                 'birthday' => $user->birthday,
                 'status' => $user->status->value,
                 'church' => $user->church ? [
