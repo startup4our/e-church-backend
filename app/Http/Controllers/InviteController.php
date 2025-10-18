@@ -40,6 +40,10 @@ class InviteController extends Controller
     {
         try {
             $invite = $this->inviteService->getByToken($token);
+            
+            // Load relationships
+            $invite->load(['areas', 'roles', 'church']);
+            
             return response()->json(['success' => true, 'data' => $invite]);
         } catch (\Exception $e) {
             throw new AppException(
@@ -62,20 +66,24 @@ class InviteController extends Controller
                 
         $data = $request->validate([
             'email' => 'required|email',
-            'area_id' => 'required|exists:area,id',
-            'role_ids' => 'required|exists:roles,id'
+            'area_ids' => 'required|array',
+            'area_ids.*' => 'exists:area,id',
+            'role_ids' => 'required|array',
+            'role_ids.*' => 'exists:role,id'
         ]);
 
         // Preenche automaticamente church_id do usuário logado
         $data['church_id'] = $user->church_id;
 
-        Log::info($user);
+        Log::info("Creating invite", ['user_id' => $user->id, 'data' => $data]);
 
         $invite = $this->inviteService->create($data);
         
-        
-        return response()->json(['success' => true, 'message' => 'Convite enviado com sucesso']);
-        // return response()->json(['success' => true], 201);
+        return response()->json([
+            'success' => true, 
+            'message' => 'Convite enviado com sucesso',
+            'data' => $invite
+        ], 201);
     }
 
     // Consome convite (registro)
@@ -94,7 +102,7 @@ class InviteController extends Controller
     {
         $user = Auth::user();
 
-        if (!$this->permissionService->hasPermission($user->id, 'delete_invite')) {
+        if (!$this->permissionService->hasPermission($user->id, 'manage_users')) {
             throw new AppException(
                 ErrorCode::PERMISSION_DENIED,
                 userMessage: 'Você não tem permissão para apagar convites.'
@@ -103,5 +111,48 @@ class InviteController extends Controller
 
         $this->inviteService->delete($id);
         return response()->json(['success' => true, 'data' => null], 204);
+    }
+
+    /**
+     * Resend an invite email
+     * 
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function resend(int $id)
+    {
+        $user = Auth::user();
+        
+        // Check permissions
+        if (!$this->permissionService->hasPermission($user->id, 'manage_users')) {
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para reenviar convites.'
+            );
+        }
+        
+        try {
+            Log::info("User [{$user->id}] resending invite [{$id}]");
+            
+            $invite = $this->inviteService->resend($id, $user->church_id);
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Convite reenviado com sucesso',
+                'data' => $invite
+            ]);
+        } catch (AppException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error("Failed to resend invite", [
+                'invite_id' => $id, 
+                'user_id' => $user->id,
+                'error' => $e->getMessage()
+            ]);
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao reenviar convite'
+            );
+        }
     }
 }

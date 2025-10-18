@@ -9,7 +9,7 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->enum('status', ['A', 'I', 'WA'])->default('WA');
+            $table->enum('status', ['A', 'I', 'WA', 'R'])->default('WA');
             $table->foreignId('church_id')->nullable()->constrained('church')->onDelete('cascade');
         });
 

@@ -20,4 +20,6 @@ interface IInviteService
     public function getByChurchId(int $churchId): Collection;
 
     public function delete(int $id): bool;
+
+    public function resend(int $id, int $churchId): Invite;
 }
