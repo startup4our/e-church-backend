@@ -5,6 +5,7 @@ namespace App\Repositories;
 use App\Models\DTO\MessageDTO;
 use App\Models\Message;
 use Illuminate\Support\Collection;
+use Log;
 
 class MessageRepository
 {
@@ -48,6 +49,8 @@ class MessageRepository
             ->whereIn('messages.chat_id', $chats)
             ->orderBy('messages.sent_at', 'desc')
             ->get();
+
+        Log::info($rows);
 
         return $rows->map(fn ($row) => MessageDTO::fromArray($row->toArray()));
     }

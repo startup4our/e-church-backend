@@ -28,7 +28,7 @@ class InviteMail extends Mailable implements ShouldQueue
     public function build()
     {
         // Gera a URL de cadastro com o token do convite
-        $url = env('FRONTEND_URL') . '/register?invite=' . $this->invite->token;
+        $url = env('FRONTEND_URL') . '/register-member?invite=' . $this->invite->token;
 
         return $this->subject('Convite para participar do eChurch')
             ->view('emails.invite') // aponta para resources/views/emails/invite.blade.php

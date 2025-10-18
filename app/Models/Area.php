@@ -21,4 +21,9 @@ class Area extends Model
     {
         return $this->belongsTo(Church::class);
     }
+
+    public function roles()
+    {
+        return $this->hasMany(Role::class, 'area_id');
+    }
 }

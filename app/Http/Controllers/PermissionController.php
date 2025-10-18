@@ -4,10 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\AppException;
 use App\Enums\ErrorCode;
+use App\Http\Requests\Auth\UpdatePermissionRequest;
+use App\Http\Requests\PermissionRequest;
 use App\Models\Permission;
 use App\Services\Interfaces\IPermissionService;
 use Illuminate\Http\Request;
-use app\Http\Requests\PermissionRequest.php;
+
 
 class PermissionController extends Controller
 {

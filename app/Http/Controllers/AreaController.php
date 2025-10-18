@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\AppException;
 use App\Enums\ErrorCode;
+use App\Models\DTO\AreaWithRolesDTO;
 use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IPermissionService;
 use Illuminate\Http\Request;
@@ -246,6 +247,41 @@ class AreaController extends Controller
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    /**
+     * Get all areas with their associated roles for the authenticated user's church
+     * Returns areas with nested roles array - optimized for frontend forms
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getAreasWithRoles()
+    {
+        $user = Auth::user();
+        Log::info("User [{$user->id}] requested areas with roles for church [{$user->church_id}]");
+        
+        try {
+            // Get areas with roles relationship loaded
+            $areas = $this->areaService->getByChurchIdWithRoles($user->church_id);
+            
+            // Transform to DTOs
+            $areasWithRoles = $areas->map(function ($area) {
+                return (new AreaWithRolesDTO($area))->toArray();
+            });
+            
+            Log::info("Retrieved " . $areasWithRoles->count() . " areas with roles for user [{$user->id}]");
+            
+            return response()->json([
+                'success' => true,
+                'data' => $areasWithRoles
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve areas with roles for user [{$user->id}]: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao carregar áreas e funções'
             );
         }
     }
