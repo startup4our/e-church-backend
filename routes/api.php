@@ -60,7 +60,8 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('areas', AreaController::class);
     Route::get('areas/{id}/users', [AreaController::class, 'getUsers']);
     Route::put('areas/{areaId}/users/{userId}/switch', [AreaController::class, 'switchUserArea']);
-
+    Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
+    
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
     Route::apiResource('songs', SongController::class);
