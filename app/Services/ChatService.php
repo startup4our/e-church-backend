@@ -8,6 +8,7 @@ use App\Models\DTO\MessageDTO;
 use App\Repositories\ChatRepository;
 use App\Repositories\MessageRepository;
 use App\Repositories\UserAreaRepository;
+use App\Services\Interfaces\IStorageService;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\Log;
 
@@ -16,15 +17,18 @@ class ChatService implements \App\Services\Interfaces\IChatService
     protected $repository;
     protected $messageRepository;
     protected $userAreaRepository;
+    protected $storageService;
 
     public function __construct(
         ChatRepository $repository, 
         MessageRepository $messageRepository,
-        UserAreaRepository $userAreaRepository
+        UserAreaRepository $userAreaRepository,
+        IStorageService $storageService
     ) {
         $this->repository = $repository;
         $this->messageRepository = $messageRepository;
         $this->userAreaRepository = $userAreaRepository;
+        $this->storageService = $storageService;
     }
 
     public function getAll()
@@ -75,6 +79,39 @@ class ChatService implements \App\Services\Interfaces\IChatService
 
         // Get messages of this chats
         $messages = $this->messageRepository->getAllForChats($chatIds);
+
+        // Build
+        return $chats->map(function (Chat $chat) use ($messages) {
+            $chatMessages = $messages
+                ->where('chatId', $chat->id)
+                ->map(function (MessageDTO $msg) {
+                    if ($msg->imagePath) $msg->imagePath = $this->storageService->getSignedUrl($msg->imagePath);
+                    return [
+                        'content' => $msg->content,
+                        'sent_at' => $msg->sentAt,
+                        'user_name' => $msg->userName,
+                        'image_path' => $msg->imagePath,
+                    ];
+                })
+                ->toArray();
+
+            return ChatWithMessagesDTO::fromModel($chat, $chatMessages);
+        });
+    }
+
+    /**
+     * @return ChatWithMessagesDTO
+     */
+    public function getChatForUserById(int $user_id, int $chat_id): Collection
+    {
+        Log::info("Getting chat [{$chat_id}] for user [{$user_id}]");
+
+        // Get all chats user participates
+        $chats = $this->repository->getOneById($chat_id);
+        Log::info("Retrieved {$chats->count()} chats for user [{$user_id}]");
+
+        // Get messages of this chat
+        $messages = $this->messageRepository->getAllForChats([$chat_id]);
 
         // Build
         return $chats->map(function (Chat $chat) use ($messages) {

@@ -74,6 +74,16 @@ class ChatRepository
     }
 
     /**
+     * Get one chats for user - search by id
+     * @param int $chat_id
+     * @return Collection
+     */
+    public function getOneById(int $chat_id): Collection
+    {
+        return Chat::whereKey($chat_id)->get();
+    }
+
+    /**
      * Buscar chat específico de uma área
      */
     public function getChatByArea(int $areaId): ?Chat

@@ -6,7 +6,7 @@ class MessageDTO
 {
     public function __construct(
         public int $chatId,
-        public string $content,
+        public ?string $content,
         public ?string $imagePath,
         public string $sentAt,
         public string $userName

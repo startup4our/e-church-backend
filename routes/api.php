@@ -46,7 +46,6 @@ Route::middleware(['auth:api'])->get('/v1/user', function (Request $request) {
 */
 Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
-    // User schedules
     Route::get('user-schedules/show-all-schedules', [UserScheduleController::class, 'getAllSchedules']);
     Route::get('user-schedules/show-users-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getUsersByScheduleId']);
     Route::get('user-schedules/show-schedule-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getScheduleByScheduleId']);
@@ -56,17 +55,16 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::delete('user-schedules/remove-user-in-schedule', [UserScheduleController::class, 'removeUserInSchedule']);
     Route::delete('user-schedules/remove-user-from-schedule', [UserScheduleController::class, 'removeUserFromSchedule']);
     Route::patch('user-schedules/update-status', [UserScheduleController::class, 'updateStatus']);
-
-    // CRUD endpoints
-    Route::apiResource('areas', AreaController::class);
+    Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
     
-    // Areas with roles (optimized endpoint for forms)
-    Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
+    Route::apiResource('areas', AreaController::class);
+    Route::get('areas/{id}/users', [AreaController::class, 'getUsers']);
+    Route::put('areas/{areaId}/users/{userId}/switch', [AreaController::class, 'switchUserArea']);
+
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
     Route::apiResource('songs', SongController::class);
     Route::apiResource('roles', RoleController::class);
-    Route::apiResource('chats', ChatController::class);
     Route::apiResource('message', MessageController::class);
     Route::apiResource('date-exception', DateExceptionController::class);
     Route::apiResource('permission', PermissionController::class);
@@ -87,6 +85,10 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::get('users/pending', [UserApprovalController::class, 'index']);
     Route::post('users/{id}/approve', [UserApprovalController::class, 'approve']);
     Route::post('users/{id}/reject', [UserApprovalController::class, 'reject']);
+    
+    Route::apiResource('chats', ChatController::class);
+    Route::post('chats/user/', [ChatController::class, 'getChats']);
+    Route::post('chats/{chat_id}', [ChatController::class, 'getChatById']);
 
     // User profile routes
     Route::get('users/profile', [UserController::class, 'profile']);

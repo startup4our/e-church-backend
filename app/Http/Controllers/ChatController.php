@@ -244,4 +244,47 @@ class ChatController extends Controller
             );
         }
     }
+    public function getChatById(Request $request)
+    {
+        try {
+            $validated = $request->validate([
+                'user_id' => 'required|integer',
+                'chat_id'   => 'required|int', 
+            ]);
+
+            $userId = $validated['user_id'];
+            $chat_id  = $validated['chat_id'];
+
+            Log::info("Request to get chat for user", ['user_id' => $userId, 'chat_id' => $chat_id]);
+
+            $hasPermission = $this->permissionService->hasPermission($userId, 'read_chat');
+            if (!$hasPermission) {
+                Log::warning("User [{$userId}] tried to access chats but does not have permission");
+                throw new AppException(
+                    ErrorCode::PERMISSION_DENIED,
+                    userMessage: 'Você não tem permissão para visualizar chats'
+                );
+            }
+
+            $chat = $this->service->getChatForUserById($userId, $chat_id);
+            return response()->json([
+                'success' => true,
+                'data' => $chat
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning("Get chats validation failed: " . json_encode($e->errors()));
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (AppException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error("Failed to get chats: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
 }

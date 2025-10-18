@@ -4,11 +4,19 @@ namespace App\Repositories;
 
 use App\Models\DTO\MessageDTO;
 use App\Models\Message;
+use App\Services\Interfaces\IStorageService;
 use Illuminate\Support\Collection;
-use Log;
+use Illuminate\Support\Facades\Log;
 
 class MessageRepository
 {
+    protected IStorageService $storageService;
+
+    public function __construct(IStorageService $storageService)
+    {
+        $this->storageService = $storageService;
+    }
+
     public function all()
     {
         return Message::with(['user', 'chat'])->get();
@@ -35,7 +43,7 @@ class MessageRepository
         $message->delete();
     }
 
-    public function getAllForChats($chats): Collection
+    public function getAllForChats(array $chats): Collection
     {
         $rows = Message::query()
             ->select([
@@ -47,11 +55,26 @@ class MessageRepository
             ])
             ->join('users', 'messages.user_id', '=', 'users.id')
             ->whereIn('messages.chat_id', $chats)
-            ->orderBy('messages.sent_at', 'desc')
+            ->orderBy('messages.sent_at', 'asc')
             ->get();
 
-        Log::info($rows);
-
-        return $rows->map(fn ($row) => MessageDTO::fromArray($row->toArray()));
+        return $rows->map(function ($row) {
+            $data = $row->toArray();
+            
+            // Generate signed URL for image if exists
+            if (!empty($data['image_path'])) {
+                try {
+                    $data['image_url'] = $this->storageService->getSignedUrl($data['image_path'], 60);
+                } catch (\Exception $e) {
+                    Log::warning('Failed to generate signed URL for message image', [
+                        'image_path' => $data['image_path'],
+                        'error' => $e->getMessage()
+                    ]);
+                    $data['image_url'] = null;
+                }
+            }
+            
+            return MessageDTO::fromArray($data);
+        });
     }
 }
