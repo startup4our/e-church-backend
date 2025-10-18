@@ -24,6 +24,7 @@ use App\Services\Interfaces\IRecordingService;
 use App\Services\Interfaces\IScheduleService;
 use App\Services\Interfaces\IUserScheduleService;
 use App\Services\Interfaces\IStorageService;
+use App\Services\Interfaces\IInviteService;
 use App\Services\LinkService;
 use App\Services\RecordingService;
 use App\Services\SongService;
@@ -31,6 +32,7 @@ use App\Services\RoleService;
 use App\Services\ScheduleService;
 use App\Services\StorageService;
 use App\Services\UserScheduleService;
+use App\Services\InviteService;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -53,6 +55,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IScheduleService::class, ScheduleService::class);
         $this->app->bind(IUserScheduleService::class, UserScheduleService::class);
         $this->app->bind(IStorageService::class, StorageService::class);
+        $this->app->bind(IInviteService::class, InviteService::class);
     }
 
     /**
