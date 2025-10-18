@@ -9,6 +9,7 @@ enum ErrorCode: string
     case FORBIDDEN = 'FORBIDDEN';
     case TOKEN_EXPIRED = 'TOKEN_EXPIRED';
     case INVALID_CREDENTIALS = 'INVALID_CREDENTIALS';
+    case INVITE_EXPIRED = 'INVITE_EXPIRED';
     
     // Validation
     case VALIDATION_ERROR = 'VALIDATION_ERROR';
@@ -40,7 +41,7 @@ enum ErrorCode: string
     public function getHttpStatusCode(): int
     {
         return match($this) {
-            self::UNAUTHORIZED, self::TOKEN_EXPIRED, self::INVALID_CREDENTIALS => 401,
+            self::UNAUTHORIZED, self::TOKEN_EXPIRED, self::INVALID_CREDENTIALS, self::INVITE_EXPIRED  => 401,
             self::FORBIDDEN, self::PERMISSION_DENIED => 403,
             self::RESOURCE_NOT_FOUND, self::CHURCH_NOT_FOUND, self::AREA_NOT_FOUND => 404,
             self::VALIDATION_ERROR, self::REQUIRED_FIELD_MISSING, self::INVALID_FORMAT => 422,

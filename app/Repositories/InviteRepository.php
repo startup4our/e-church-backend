@@ -45,7 +45,16 @@ class InviteRepository
 
     public function getByChurchId(int $churchId): Collection
     {
-        return Invite::where('church_id', $churchId)->get();
+        return Invite::where('church_id', $churchId)
+            ->orderByRaw('
+                CASE 
+                    WHEN used = false AND expires_at > NOW() THEN 1
+                    WHEN used = false AND expires_at <= NOW() THEN 2
+                    WHEN used = true THEN 3
+                END
+            ')
+            ->orderBy('created_at', 'desc')
+            ->get();
     }
 
     public function delete(int $id): bool

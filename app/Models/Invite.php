@@ -10,9 +10,7 @@ class Invite extends Model
 
     protected $fillable = [
         'email',
-        'area_id',
-        'church_id',
-        'role_ids',
+          'church_id',
         'token',
         'used',
         'expires_at',
@@ -23,13 +21,18 @@ class Invite extends Model
         'expires_at' => 'datetime',
     ];
 
-    public function area()
-    {
-        return $this->belongsTo(Area::class);
-    }
-
     public function church()
     {
         return $this->belongsTo(Church::class);
+    }
+
+    public function areas()
+    {
+        return $this->belongsToMany(Area::class, 'invite_area');
+    }
+
+    public function roles()
+    {
+        return $this->belongsToMany(Role::class, 'invite_role');
     }
 }

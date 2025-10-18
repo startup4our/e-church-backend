@@ -13,6 +13,8 @@ interface IAreaService
 
     public function getByChurchId(int $churchId): Collection;
 
+    public function getByChurchIdWithRoles(int $churchId): Collection;
+
     public function getById(int $id): Area;
 
     public function getByIdAndChurchId(int $id, int $churchId): Area;

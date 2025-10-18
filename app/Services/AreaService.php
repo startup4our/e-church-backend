@@ -81,6 +81,20 @@ class AreaService implements IAreaService
         }
     }
 
+    public function getByChurchIdWithRoles(int $churchId): Collection
+    {
+        Log::info("Retrieving areas with roles for church [{$churchId}]");
+        
+        try {
+            $areas = $this->repository->getByChurchIdWithRoles($churchId);
+            Log::info("Retrieved " . $areas->count() . " areas with roles for church [{$churchId}]");
+            return $areas;
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve areas with roles for church [{$churchId}]: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
     public function getById(int $id): Area
     {
         Log::info("Retrieving area with ID: {$id}");

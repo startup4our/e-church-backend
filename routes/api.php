@@ -20,6 +20,7 @@ use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\UnavailabilityController;
+use App\Http\Controllers\UserApprovalController;
 use App\Http\Controllers\UserScheduleController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\StorageController;
@@ -58,8 +59,9 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     // CRUD endpoints
     Route::apiResource('areas', AreaController::class);
-    Route::get('areas/{id}/users', [AreaController::class, 'getUsers']);
-    Route::put('areas/{areaId}/users/{userId}/switch', [AreaController::class, 'switchUserArea']);
+    
+    // Areas with roles (optimized endpoint for forms)
+    Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
     Route::apiResource('songs', SongController::class);
@@ -75,8 +77,16 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     // Geração automática de escala
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
 
-    // Convite (apenas envio — requer autenticação)
+    // Convites (requer autenticação)
+    Route::get('invites', [InviteController::class, 'index']);
     Route::post('invites', [InviteController::class, 'store']);
+    Route::post('invites/{id}/resend', [InviteController::class, 'resend']);
+    Route::delete('invites/{id}', [InviteController::class, 'destroy']);
+
+    // User approval (requer autenticação)
+    Route::get('users/pending', [UserApprovalController::class, 'index']);
+    Route::post('users/{id}/approve', [UserApprovalController::class, 'approve']);
+    Route::post('users/{id}/reject', [UserApprovalController::class, 'reject']);
 
     // User profile routes
     Route::get('users/profile', [UserController::class, 'profile']);

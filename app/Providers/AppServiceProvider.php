@@ -9,9 +9,13 @@ use App\Services\Interfaces\IDateExceptionService;
 use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\IPermissionService;
 use App\Services\Interfaces\IUnavailabilityService;
+use App\Services\Interfaces\IUserApprovalService;
+use App\Services\Interfaces\IUserService;
 use App\Services\MessageService;
 use App\Services\PermissionService;
 use App\Services\UnavailabilityService;
+use App\Services\UserApprovalService;
+use App\Services\UserService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IChurchService;
@@ -56,6 +60,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IUserScheduleService::class, UserScheduleService::class);
         $this->app->bind(IStorageService::class, StorageService::class);
         $this->app->bind(IInviteService::class, InviteService::class);
+        $this->app->bind(IUserService::class, UserService::class);
+        $this->app->bind(IUserApprovalService::class, UserApprovalService::class);
     }
 
     /**
