@@ -11,6 +11,7 @@ use App\Services\Interfaces\IAreaService;
 use App\Services\Interfaces\IChurchService;
 use App\Services\Interfaces\IPermissionService;
 use App\Services\Interfaces\IStorageService;
+use App\Services\Interfaces\IInviteService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -24,15 +25,23 @@ class AuthController extends Controller
     protected IPermissionService $permissionService;
     protected IChurchService $churchService;
     protected IStorageService $storageService;
-
+    protected IInviteService $inviteService;
+    
     private string $ufs = 'AC,AL,AP,AM,BA,CE,DF,ES,GO,MA,MT,MS,MG,PA,PB,PR,PE,PI,RJ,RN,RS,RO,RR,SC,SP,SE,TO';
+    
+    public function __construct(
+        IAreaService $areaService, 
+        IPermissionService $permissionService, 
+        IChurchService $churchService,
+        IInviteService $inviteService,
+        IStorageService $storageService
+        ) {
+            $this->areaService = $areaService;
+            $this->permissionService = $permissionService;
+            $this->churchService = $churchService;
+            $this->inviteService = $inviteService;
+            $this->storageService = $storageService;
 
-    public function __construct(IAreaService $areaService, IPermissionService $permissionService, IChurchService $churchService, IStorageService $storageService)
-    {
-        $this->areaService = $areaService;
-        $this->permissionService = $permissionService;
-        $this->churchService = $churchService;
-        $this->storageService = $storageService;
     }
     public function login(Request $request)
     {
@@ -116,22 +125,41 @@ class AuthController extends Controller
     public function register(Request $request){
         try {
             Log::info('Request to register user');
+            
             $data = $request->validate([
                 'name' => 'required|string|max:255',
                 'email' => 'required|string|email|max:255|unique:users',
                 'password' => 'required|string|min:8|confirmed',
                 'birthday' => 'required|date',
                 'church_id' => 'required|exists:church,id',
+                'token' => 'nullable|string', // Optional invite token
             ]);
 
-            $user = User::create([
-                'name' => $data['name'],
-                'email' => $data['email'],
-                'password' => bcrypt($data['password']),
-                'birthday' => $data['birthday'],
-                'church_id' => $data['church_id'],
-                'status' => UserStatus::WAITING_APPROVAL, // sempre WA
-            ]);
+            // Check if registering with invite
+            if (!empty($data['token'])) {
+                Log::info('Registering user with invite token', ['token' => $data['token']]);
+                
+                // Consume the invite (this creates user with areas/roles and auto-approval)
+                $user = $this->inviteService->consume($data['token'], [
+                    'name' => $data['name'],
+                    'password' => $data['password'],
+                    'birthday' => $data['birthday'],
+                ]);
+                
+                Log::info('User created from invite', ['user_id' => $user->id, 'status' => $user->status]);
+            } else {
+                // Normal registration (waiting approval)
+                $user = User::create([
+                    'name' => $data['name'],
+                    'email' => $data['email'],
+                    'password' => bcrypt($data['password']),
+                    'birthday' => $data['birthday'],
+                    'church_id' => $data['church_id'],
+                    'status' => UserStatus::WAITING_APPROVAL,
+                ]);
+                
+                Log::info('User created normally', ['user_id' => $user->id, 'status' => $user->status]);
+            }
 
             Auth::login($user);
             $token = Auth::getToken();

@@ -23,6 +23,13 @@ class AreaRepository
         return Area::where('church_id', $churchId)->get();
     }
 
+    public function getByChurchIdWithRoles(int $churchId): Collection
+    {
+        return Area::where('church_id', $churchId)
+            ->with('roles')
+            ->get();
+    }
+
     public function getById(int $id): Area
     {
         return Area::findOrFail($id);
