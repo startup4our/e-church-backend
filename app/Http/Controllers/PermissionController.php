@@ -6,7 +6,8 @@ use App\Exceptions\AppException;
 use App\Enums\ErrorCode;
 use App\Models\Permission;
 use App\Services\Interfaces\IPermissionService;
-use App\Http\Requests\Auth\UpdatePermissionRequest;
+use Illuminate\Http\Request;
+use app\Http\Requests\PermissionRequest.php;
 
 class PermissionController extends Controller
 {
