@@ -3,9 +3,9 @@
 namespace App\Services;
 
 use App\Models\Area;
-use App\Models\UserArea;
 use App\Repositories\AreaRepository;
 use App\Repositories\ChatRepository;
+use App\Repositories\UserAreaRepository;
 use App\Services\Interfaces\IAreaService;
 use App\Enums\ChatType;
 use Illuminate\Support\Collection;
@@ -16,11 +16,13 @@ class AreaService implements IAreaService
 {
     private AreaRepository $repository;
     private ChatRepository $chatRepository;
+    private UserAreaRepository $userAreaRepository;
 
-    public function __construct(AreaRepository $repository, ChatRepository $chatRepository)
+    public function __construct(AreaRepository $repository, ChatRepository $chatRepository, UserAreaRepository $userAreaRepository)
     {
         $this->repository = $repository;
         $this->chatRepository = $chatRepository;
+        $this->userAreaRepository = $userAreaRepository;
     }
 
     public function create(array $data): Area
@@ -171,7 +173,7 @@ class AreaService implements IAreaService
         
         try {
             // Check if area has associated users
-            $userCount = UserArea::where('area_id', $id)->count();
+            $userCount = $this->userAreaRepository->getUsersByAreaId($id)->count();
             if ($userCount > 0) {
                 Log::warning("Cannot delete area [{$id}] - it has {$userCount} associated users");
                 throw new \App\Exceptions\AppException(
@@ -209,19 +211,17 @@ class AreaService implements IAreaService
             $area = $this->repository->getByIdAndChurchId($areaId, $churchId);
             
             // Get users from the area
-            $users = UserArea::with(['user'])
-                ->where('area_id', $areaId)
-                ->get()
-                ->map(function ($userArea) {
-                    return [
-                        'id' => $userArea->user->id,
-                        'name' => $userArea->user->name,
-                        'email' => $userArea->user->email,
-                        'status' => $userArea->user->status->value,
-                        'photo_path' => $userArea->user->photo_path,
-                        'birthday' => $userArea->user->birthday,
-                    ];
-                });
+            $userAreas = $this->userAreaRepository->getUsersByAreaId($areaId);
+            $users = $userAreas->map(function ($userArea) {
+                return [
+                    'id' => $userArea->user->id,
+                    'name' => $userArea->user->name,
+                    'email' => $userArea->user->email,
+                    'status' => $userArea->user->status->value,
+                    'photo_path' => $userArea->user->photo_path,
+                    'birthday' => $userArea->user->birthday,
+                ];
+            });
             
             Log::info("Retrieved " . $users->count() . " users from area [{$areaId}] in church [{$churchId}]");
             return $users;
@@ -242,17 +242,12 @@ class AreaService implements IAreaService
                 $newArea = $this->repository->getByIdAndChurchId($newAreaId, $churchId);
                 
                 // Remove user from current area
-                UserArea::where('user_id', $userId)
-                    ->where('area_id', $currentAreaId)
-                    ->delete();
+                $this->userAreaRepository->removeUserFromArea($userId, $currentAreaId);
                 
                 Log::info("User [{$userId}] removed from area [{$currentAreaId}]");
                 
                 // Add user to new area
-                UserArea::create([
-                    'user_id' => $userId,
-                    'area_id' => $newAreaId,
-                ]);
+                $this->userAreaRepository->addUserToArea($userId, $newAreaId);
                 
                 Log::info("User [{$userId}] added to area [{$newAreaId}]");
             });
@@ -260,6 +255,66 @@ class AreaService implements IAreaService
             Log::info("User [{$userId}] successfully switched from area [{$currentAreaId}] to area [{$newAreaId}]");
         } catch (\Exception $e) {
             Log::error("Failed to switch user [{$userId}] from area [{$currentAreaId}] to area [{$newAreaId}]: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function addUserToArea(int $userId, int $areaId, int $churchId): void
+    {
+        Log::info("Adding user [{$userId}] to area [{$areaId}] in church [{$churchId}]");
+        
+        try {
+            // Verify the area belongs to the church
+            $this->repository->getByIdAndChurchId($areaId, $churchId);
+            
+            // Check if user is already in this area
+            if ($this->userAreaRepository->userBelongsToArea($userId, $areaId)) {
+                Log::warning("User [{$userId}] is already associated with area [{$areaId}]");
+                throw new \App\Exceptions\AppException(
+                    \App\Enums\ErrorCode::VALIDATION_ERROR,
+                    userMessage: 'Usuário já está associado a esta área'
+                );
+            }
+            
+            // Add user to area
+            $this->userAreaRepository->addUserToArea($userId, $areaId);
+            Log::info("User [{$userId}] successfully added to area [{$areaId}]");
+            
+        } catch (\App\Exceptions\AppException $e) {
+            // Re-throw AppException as-is
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error("Failed to add user [{$userId}] to area [{$areaId}]: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function removeUserFromArea(int $userId, int $areaId, int $churchId): void
+    {
+        Log::info("Removing user [{$userId}] from area [{$areaId}] in church [{$churchId}]");
+        
+        try {
+            // Verify the area belongs to the church
+            $this->repository->getByIdAndChurchId($areaId, $churchId);
+            
+            // Remove user from area
+            $deleted = $this->userAreaRepository->removeUserFromArea($userId, $areaId);
+            
+            if (!$deleted) {
+                Log::warning("User [{$userId}] was not associated with area [{$areaId}]");
+                throw new \App\Exceptions\AppException(
+                    \App\Enums\ErrorCode::RESOURCE_NOT_FOUND,
+                    userMessage: 'Usuário não está associado a esta área'
+                );
+            }
+            
+            Log::info("User [{$userId}] successfully removed from area [{$areaId}]");
+            
+        } catch (\App\Exceptions\AppException $e) {
+            // Re-throw AppException as-is
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error("Failed to remove user [{$userId}] from area [{$areaId}]: " . $e->getMessage());
             throw $e;
         }
     }

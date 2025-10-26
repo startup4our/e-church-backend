@@ -285,4 +285,78 @@ class AreaController extends Controller
             );
         }
     }
+
+    public function addUserToArea(Request $request, string $userId)
+    {
+        $user = Auth::user();
+        
+        // Check if user has permission to update areas
+        if (!$this->permissionService->hasPermission($user->id, 'update_area')) {
+            Log::warning("User [{$user->id}] attempted to add user [{$userId}] to area without permission");
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para gerenciar usuários das áreas'
+            );
+        }
+
+        Log::info("User [{$user->id}] attempting to add user [{$userId}] to area");
+
+        try {
+            $data = $request->validate([
+                'area_id' => 'required|integer|exists:area,id',
+            ]);
+
+            $this->areaService->addUserToArea((int)$userId, $data['area_id'], $user->church_id);
+            Log::info("User [{$user->id}] successfully added user [{$userId}] to area [{$data['area_id']}]");
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário adicionado à área com sucesso'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning("User [{$user->id}] failed to add user [{$userId}] to area because of validation errors: " . json_encode($e->errors()));
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            Log::error("User [{$user->id}] failed to add user [{$userId}] to area because: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao adicionar usuário à área'
+            );
+        }
+    }
+
+    public function removeUserFromArea(string $userId, string $areaId)
+    {
+        $user = Auth::user();
+        
+        // Check if user has permission to update areas
+        if (!$this->permissionService->hasPermission($user->id, 'update_area')) {
+            Log::warning("User [{$user->id}] attempted to remove user [{$userId}] from area [{$areaId}] without permission");
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para gerenciar usuários das áreas'
+            );
+        }
+
+        Log::info("User [{$user->id}] attempting to remove user [{$userId}] from area [{$areaId}]");
+
+        try {
+            $this->areaService->removeUserFromArea((int)$userId, (int)$areaId, $user->church_id);
+            Log::info("User [{$user->id}] successfully removed user [{$userId}] from area [{$areaId}]");
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário removido da área com sucesso'
+            ]);
+        } catch (\Exception $e) {
+            Log::error("User [{$user->id}] failed to remove user [{$userId}] from area [{$areaId}] because: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao remover usuário da área'
+            );
+        }
+    }
 }

@@ -60,6 +60,8 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('areas', AreaController::class);
     Route::get('areas/{id}/users', [AreaController::class, 'getUsers']);
     Route::put('areas/{areaId}/users/{userId}/switch', [AreaController::class, 'switchUserArea']);
+    Route::post('areas/{userId}/add-user', [AreaController::class, 'addUserToArea']);
+    Route::delete('areas/{userId}/remove-user/{areaId}', [AreaController::class, 'removeUserFromArea']);
     Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
 
     Route::apiResource('unavailability', UnavailabilityController::class);

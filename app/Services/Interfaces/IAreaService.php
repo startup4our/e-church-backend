@@ -32,4 +32,8 @@ interface IAreaService
     public function getUsersByAreaId(int $areaId, int $churchId): Collection;
 
     public function switchUserArea(int $userId, int $currentAreaId, int $newAreaId, int $churchId): void;
+
+    public function addUserToArea(int $userId, int $areaId, int $churchId): void;
+
+    public function removeUserFromArea(int $userId, int $areaId, int $churchId): void;
 }
