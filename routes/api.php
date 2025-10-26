@@ -56,12 +56,12 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::delete('user-schedules/remove-user-from-schedule', [UserScheduleController::class, 'removeUserFromSchedule']);
     Route::patch('user-schedules/update-status', [UserScheduleController::class, 'updateStatus']);
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
-    
+
     Route::apiResource('areas', AreaController::class);
     Route::get('areas/{id}/users', [AreaController::class, 'getUsers']);
     Route::put('areas/{areaId}/users/{userId}/switch', [AreaController::class, 'switchUserArea']);
     Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
-    
+
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
     Route::apiResource('songs', SongController::class);
@@ -71,7 +71,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::apiResource('permission', PermissionController::class);
     Route::apiResource('links', LinkController::class);
     Route::apiResource('recordings', RecordingController::class);
-    // Route::apiResource('schedules', ScheduleController::class);
+    Route::apiResource('schedules', ScheduleController::class);
 
     // Geração automática de escala
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
@@ -86,7 +86,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::get('users/pending', [UserApprovalController::class, 'index']);
     Route::post('users/{id}/approve', [UserApprovalController::class, 'approve']);
     Route::post('users/{id}/reject', [UserApprovalController::class, 'reject']);
-    
+
     Route::post('chats/user/', [ChatController::class, 'getChats']);
     Route::post('chats/', [ChatController::class, 'getChatById']);
 
