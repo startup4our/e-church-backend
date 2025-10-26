@@ -102,7 +102,7 @@ class ChatService implements \App\Services\Interfaces\IChatService
     /**
      * @return ChatWithMessagesDTO
      */
-    public function getChatForUserById(int $user_id, int $chat_id): Collection
+    public function getChatForUserById(int $user_id, int $chat_id): ChatWithMessagesDTO
     {
         Log::info("Getting chat [{$chat_id}] for user [{$user_id}]");
 
@@ -122,13 +122,13 @@ class ChatService implements \App\Services\Interfaces\IChatService
                         'content' => $msg->content,
                         'sent_at' => $msg->sentAt,
                         'user_name' => $msg->userName,
-                        'image_path' => $msg->imagePath,
+                        'image_path' => $msg->imagePath ? $this->storageService->getSignedUrl($msg->imagePath) : $msg->imagePath,
                     ];
                 })
                 ->toArray();
 
             return ChatWithMessagesDTO::fromModel($chat, $chatMessages);
-        });
+        })[0];
     }
 
     /**

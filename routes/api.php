@@ -87,9 +87,8 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::post('users/{id}/approve', [UserApprovalController::class, 'approve']);
     Route::post('users/{id}/reject', [UserApprovalController::class, 'reject']);
     
-    Route::apiResource('chats', ChatController::class);
     Route::post('chats/user/', [ChatController::class, 'getChats']);
-    Route::post('chats/{chat_id}', [ChatController::class, 'getChatById']);
+    Route::post('chats/', [ChatController::class, 'getChatById']);
 
     // User profile routes
     Route::get('users/profile', [UserController::class, 'profile']);
