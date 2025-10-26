@@ -62,11 +62,12 @@ class ScheduleController extends Controller
             $data = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'required|string|max:255',
-                'local' => 'nullable|string|max:255',
-                'date_time' => 'required|date',
+                'local' => 'required|string|max:255',
+                'start_date' => 'required|date',
+                'end_date' => 'required|date|after_or_equal:start_date',
                 'observation' => 'nullable|string|max:255',
                 'type' => ['required', Rule::in(ScheduleType::values())],
-                'approved' => 'boolean',
+                'approved' => 'sometimes|boolean',
                 'user_creator' => 'required|integer|exists:users,id'
             ]);
 
@@ -107,11 +108,12 @@ class ScheduleController extends Controller
             $data = $request->validate([
                 'name' => 'sometimes|string|max:255',
                 'description' => 'sometimes|string|max:255',
-                'local' => 'nullable|string|max:255',
-                'date_time' => 'sometimes|date',
+                'local' => 'sometimes|string|max:255',
+                'start_date' => 'sometimes|date',
+                'end_date' => 'sometimes|date|after_or_equal:start_date',
                 'observation' => 'nullable|string|max:255',
                 'type' => ['sometimes', Rule::in(ScheduleType::values())],
-                'approved' => 'boolean',
+                'approved' => 'sometimes|boolean',
                 'user_creator' => 'sometimes|integer|exists:users,id'
             ]);
 

@@ -28,7 +28,7 @@ class ScheduleService implements IScheduleService
     {
         //We must create a chat before create a schedule
         $schedule = $this->repository->create($data);
-        Log::info(`created schedule, going to create chat for schedule [{$schedule->id}]`);
+        Log::info("Created schedule, going to create chat for schedule [{$schedule->id}]");
 
         $chat = $this->chatRepository->create([
             'name' => $schedule->name,
@@ -37,7 +37,7 @@ class ScheduleService implements IScheduleService
             'chatable_type' => ChatType::SCALE
         ]);
 
-        Log::info(`created chat [{$chat->id}]`);
+        Log::info("Created chat [{$chat->id}]");
 
         return $schedule;
     }

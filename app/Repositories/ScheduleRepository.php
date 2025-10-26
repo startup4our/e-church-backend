@@ -22,6 +22,7 @@ class ScheduleRepository
 
     public function create(array $data): Schedule
     {
+        $data['approved'] = true; // Garantir que nova escala começa como aprovada
         return $this->model->create($data);
     }
 
@@ -51,7 +52,7 @@ class ScheduleRepository
     public function generateSchedule(int $scheduleId, array $areas, int $maxUsers): Collection
     {
         $schedule = Schedule::findOrFail($scheduleId);
-        $weekday = $schedule->date_time->dayOfWeek;
+        $weekday = $schedule->start_date->dayOfWeek;
 
         // 1. Buscar usuários das áreas permitidas
         $users = User::query()
@@ -60,21 +61,19 @@ class ScheduleRepository
             ->select('users.*')
             ->get();
 
-        
+
         $userIds = $users->pluck('id');
 
         // 2. Pré-buscar exceções e indisponibilidades
         $exceptions = DateException::query()
             ->whereIn('user_id', $userIds)
-            ->whereDate('exception_date', $schedule->date_time)
-            ->where('shift', $schedule->shift)
+            ->whereDate('exception_date', $schedule->start_date)
             ->pluck('user_id')
             ->toArray();
 
         $unavailabilities = Unavailability::query()
             ->whereIn('user_id', $userIds)
             ->where('weekday', $weekday)
-            ->where('shift', $schedule->shift)
             ->pluck('user_id')
             ->toArray();
 
@@ -89,7 +88,7 @@ class ScheduleRepository
         // 4. Histórico do mês e última escala
         $userSchedules = UserSchedule::query()
             ->whereIn('user_id', $filteredUserIds)
-            ->whereMonth('created_at', $schedule->date_time->month)
+            ->whereMonth('created_at', $schedule->start_date->month)
             ->get()
             ->groupBy('user_id');
 
@@ -104,8 +103,8 @@ class ScheduleRepository
             $monthlyCount = isset($userSchedules[$user->id]) ? count($userSchedules[$user->id]) : 0;
             if ($monthlyCount >= self::MONTHLY_LIMIT) return false;
 
-            $lastScheduleDate = isset($lastSchedules[$user->id]) ? $lastSchedules[$user->id][0]->schedule->date_time : null;
-            if ($lastScheduleDate && $schedule->date_time->diffInDays($lastScheduleDate) < self::MIN_GAP_DAYS) {
+            $lastScheduleDate = isset($lastSchedules[$user->id]) ? $lastSchedules[$user->id][0]->schedule->start_date : null;
+            if ($lastScheduleDate && $schedule->start_date->diffInDays($lastScheduleDate) < self::MIN_GAP_DAYS) {
                 return false;
             }
 
