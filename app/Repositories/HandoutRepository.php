@@ -17,7 +17,7 @@ class HandoutRepository
         }
 
         return $query->orderByDesc('priority')
-                     ->orderByDesc('publish_date')
+                     ->orderByDesc('start_date')
                      ->get();
     }
 
@@ -28,9 +28,6 @@ class HandoutRepository
 
     public function create(array $data): Handout
     {
-        $data['publish_date'] = $data['publish_date'] ?? now();
-        $data['status'] = $data['status'] ?? HandoutStatus::PENDING->value;
-
         return Handout::create($data);
     }
 
