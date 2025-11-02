@@ -87,7 +87,14 @@ class HandoutService implements IHandoutService
      */
     public function getAllForChurch(int $churchId)
     {
-        return $this->repository->all($churchId);
+        $handouts = $this->repository->all($churchId);
+        
+        foreach($handouts as $handout){
+            if ($handout->image_url) {
+                $handout->image_url = app(StorageService::class)->getSignedUrl($handout->image_url);
+            }
+        }
+        return $handouts;
     }
 
     public function getById(int $id)
