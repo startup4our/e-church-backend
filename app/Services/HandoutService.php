@@ -23,7 +23,7 @@ class HandoutService implements IHandoutService
         // Define status inicial
         if (isset($data['activate']) && $data['activate']) {
             $data['status'] = HandoutStatus::ACTIVE->value;
-            $data['publish_date'] = now();
+            $data['start_date'] = now();
         } else {
             $data['status'] = HandoutStatus::PENDING->value;
         }
