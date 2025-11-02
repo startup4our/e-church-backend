@@ -3,13 +3,39 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: echurch_app
+    container_name: escalei_app
     ports:
       - "8000:80" # mapeia porta 80 do container para 8000 do host
     volumes:
-      - .:/var/www/html  # mantém volume para desenvolvimento
+      - .:/var/www/html
     networks:
       - laravel
+
+  # Worker da fila (processa jobs)
+  worker:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: escalei_worker
+    command: php artisan queue:work --sleep=3 --tries=3
+    depends_on:
+      - app
+    networks:
+      - laravel
+    restart: always
+
+  # (Opcional) Scheduler - roda o cron do Laravel a cada minuto
+  scheduler:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: escalei_scheduler
+    command: sh -c "while [ true ]; do php artisan schedule:run; sleep 60; done"
+    depends_on:
+      - app
+    networks:
+      - laravel
+    restart: always
 
 networks:
   laravel:
