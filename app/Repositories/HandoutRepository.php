@@ -13,7 +13,7 @@ class HandoutRepository
         $query = Handout::query();
 
         if ($churchId) {
-            $query->where('church_id', $churchId);
+            $query->where('church_id', $churchId)->where('status', '!=', HandoutStatus::DELETED->value);
         }
 
         return $query->orderByDesc('priority')
@@ -42,7 +42,7 @@ class HandoutRepository
 
     public function delete(Handout $handout): bool
     {
-        return $handout->update(['status' => HandoutStatus::INACTIVE->value]);
+        return $handout->update(['status' => HandoutStatus::DELETED->value]);
     }
 
     public function activate(Handout $handout): Handout
@@ -70,7 +70,7 @@ class HandoutRepository
             $query->whereIn('area_id', $areaIds)
                   ->orWhereNull('area_id');
         })
-        ->visibleNow()
+        ->where('status', '!=',HandoutStatus::DELETED->value)
         ->get();
     }
 }
