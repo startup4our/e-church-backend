@@ -33,6 +33,7 @@ enum ErrorCode: string
     
     // Church-specific
     case CHURCH_NOT_FOUND = 'CHURCH_NOT_FOUND';
+    case HANDOUT_NOT_FOUND = 'HANDOUT_NOT_FOUND';
     case AREA_NOT_FOUND = 'AREA_NOT_FOUND';
     case AREA_HAS_USERS = 'AREA_HAS_USERS';
     case USER_NOT_IN_CHURCH = 'USER_NOT_IN_CHURCH';
@@ -43,7 +44,7 @@ enum ErrorCode: string
         return match($this) {
             self::UNAUTHORIZED, self::TOKEN_EXPIRED, self::INVALID_CREDENTIALS, self::INVITE_EXPIRED  => 401,
             self::FORBIDDEN, self::PERMISSION_DENIED => 403,
-            self::RESOURCE_NOT_FOUND, self::CHURCH_NOT_FOUND, self::AREA_NOT_FOUND => 404,
+            self::RESOURCE_NOT_FOUND, self::CHURCH_NOT_FOUND, self::HANDOUT_NOT_FOUND, self::AREA_NOT_FOUND => 404,
             self::VALIDATION_ERROR, self::REQUIRED_FIELD_MISSING, self::INVALID_FORMAT => 422,
             self::RESOURCE_ALREADY_EXISTS, self::RESOURCE_CONFLICT, self::SCHEDULE_CONFLICT, 
             self::SCHEDULE_ALREADY_EXISTS, self::BUSINESS_RULE_VIOLATION, self::AREA_HAS_USERS => 409,
@@ -72,6 +73,7 @@ enum ErrorCode: string
             self::SERVICE_UNAVAILABLE => 'Serviço indisponível',
             self::DATABASE_ERROR => 'Erro de banco de dados',
             self::CHURCH_NOT_FOUND => 'Igreja não encontrada',
+            self::HANDOUT_NOT_FOUND => 'Comunicado não encontrado',
             self::AREA_NOT_FOUND => 'Área não encontrada',
             self::AREA_HAS_USERS => 'Não é possível excluir uma área que possui usuários associados',
             self::USER_NOT_IN_CHURCH => 'Usuário não pertence à igreja',

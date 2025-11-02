@@ -4,8 +4,10 @@ namespace App\Providers;
 
 use App\Services\ChatService;
 use App\Services\DateExceptionService;
+use App\Services\HandoutService;
 use App\Services\Interfaces\IChatService;
 use App\Services\Interfaces\IDateExceptionService;
+use App\Services\Interfaces\IHandoutService;
 use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\IPermissionService;
 use App\Services\Interfaces\IUnavailabilityService;
@@ -62,6 +64,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IInviteService::class, InviteService::class);
         $this->app->bind(IUserService::class, UserService::class);
         $this->app->bind(IUserApprovalService::class, UserApprovalService::class);
+        $this->app->bind(IHandoutService::class, HandoutService::class);
     }
 
     /**
