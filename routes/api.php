@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\HandoutsController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Auth\AuthController;
@@ -109,6 +110,13 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     // Chats de usuário
     Route::post('chats/user/', [ChatController::class, 'getChats']);
+
+    //Handouts routes
+    Route::get('/handouts', [HandoutsController::class, 'index']);           // Lista todos os handouts da igreja
+    Route::get('/handouts/active', [HandoutsController::class, 'active']);  // Lista apenas os ativos
+    Route::post('/handouts', [HandoutsController::class, 'store']);         // Cria novo handout
+    Route::put('/handouts/{id}', [HandoutsController::class, 'update']);    // Atualiza handout
+    Route::delete('/handouts/{id}', [HandoutsController::class, 'destroy']); // Inativa handout
 });
 
 /*

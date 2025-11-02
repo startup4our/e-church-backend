@@ -39,6 +39,7 @@ return new class extends Migration
             $table->boolean('delete_area')->default(false);
             // Others
             $table->boolean('manage_users')->default(true);
+            $table->boolean('manage_handouts')->default(false);
             $table->boolean('manage_church_settings')->default(true);
             $table->boolean('manage_app_settings')->default(true);
 
