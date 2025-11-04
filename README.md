@@ -1,5 +1,12 @@
 # E-Church Backend
 
+## Documento de Requisitos (DRE)
+
+O **Documento de Requisitos Específico (DRE)** detalha todas as funcionalidades, fluxos e regras de negócio do sistema **E-Church Backend**.  
+Ele serve como referência técnica e funcional para o desenvolvimento, manutenção e futuras expansões do projeto.
+
+📄 [Acessar DRE (GPS – PDF)](./DRE%20GPS.pdf)
+
 ## Descrição
 
 O **E-Church Backend** é uma aplicação backend desenvolvida em Laravel para gerenciar sistemas de igrejas digitais. Ele fornece uma API robusta para funcionalidades como agendamento de eventos, gerenciamento de usuários, chats, gravações, músicas, permissões e muito mais. Projetado para ser escalável e seguro, utilizando autenticação JWT e outras tecnologias modernas.
