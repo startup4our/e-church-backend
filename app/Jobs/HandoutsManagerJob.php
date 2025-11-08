@@ -42,7 +42,7 @@ class HandoutsManagerJob implements ShouldQueue
             ->update(['status' => HandoutStatus::ACTIVE]);
 
         // Inactivate handouts that have passed their end date
-        Handout::where('end_date', '>=', $now)
+        Handout::where('end_date', '<=', $now)
             ->where('status', '=', 'A')
             ->update(['status' => HandoutStatus::INACTIVE]);
 
