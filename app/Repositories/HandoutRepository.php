@@ -16,7 +16,8 @@ class HandoutRepository
             $query->where('church_id', $churchId)->where('status', '!=', HandoutStatus::DELETED->value);
         }
 
-        return $query->orderByDesc('priority')
+        return $query->orderByDesc('status')
+                     ->orderByDesc('priority')
                      ->orderByDesc('start_date')
                      ->get();
     }
@@ -68,6 +69,9 @@ class HandoutRepository
                   ->orWhereNull('area_id');
         })
         ->where('status', '!=',HandoutStatus::DELETED->value)
+        ->where('status', '!=',HandoutStatus::INACTIVE->value)
+        ->orderBy("priority")
+        ->orderByDesc('start_date')
         ->get();
     }
 }

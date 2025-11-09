@@ -59,16 +59,14 @@ class ChatService implements \App\Services\Interfaces\IChatService
     /**
      * @return Collection<int, ChatWithMessagesDTO>
      */
-    public function getChatsForUser(int $user_id, array $areas = []): Collection
+    public function getChatsForUser(int $user_id): Collection
     {
-        Log::info("Getting chats for user [{$user_id}]", ['provided_areas' => $areas]);
+        Log::info("Getting chats for user [{$user_id}]");
 
-        // Se áreas não foram fornecidas, buscar automaticamente as áreas do usuário
-        if (empty($areas)) {
-            $userAreas = $this->userAreaRepository->getAreasByUserId($user_id);
-            $areas = $userAreas->pluck('area_id')->toArray();
-            Log::info("User areas retrieved automatically", ['user_areas' => $areas]);
-        }
+        // Buscar automaticamente as áreas do usuário
+        $userAreas = $this->userAreaRepository->getAreasByUserId($user_id);
+        $areas = $userAreas->pluck('area_id')->toArray();
+        Log::info("User areas retrieved automatically", ['user_areas' => $areas]);
 
         // Get all chats user participates
         $chats = $this->repository->getAllByUser($user_id, $areas);
