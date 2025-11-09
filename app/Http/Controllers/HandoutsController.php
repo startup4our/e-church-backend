@@ -67,11 +67,12 @@ class HandoutsController extends Controller
             'area_id' => 'nullable|int',
             'link_name' => 'nullable|string|max:255',
             'link_url' => 'nullable|string|max:255',    
-            'activate' => 'nullable|string',
+            'activate' => 'nullable|',
             'image' => 'nullable|image|mimes:jpeg,png,jpg,webp|max:4096',
         ]);
 
         $validated['church_id'] = $user->church_id;
+        $validated['activate'] = $request->boolean('activate');
 
         try {
             Log::info("User [{$user->id}] creating handout for church [{$user->church_id}]");

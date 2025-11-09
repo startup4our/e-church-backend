@@ -206,13 +206,11 @@ class ChatController extends Controller
         try {
             $validated = $request->validate([
                 'user_id' => 'required|integer',
-                'areas'   => 'sometimes|array', 
             ]);
 
             $userId = $validated['user_id'];
-            $areas  = $validated['areas'] ?? []; // se não fornecido, será buscado automaticamente
 
-            Log::info("Request to get chats for user", ['user_id' => $userId, 'areas' => $areas]);
+            Log::info("Request to get chats for user", ['user_id' => $userId]);
 
             $hasPermission = $this->permissionService->hasPermission($userId, 'read_chat');
             if (!$hasPermission) {
@@ -223,7 +221,7 @@ class ChatController extends Controller
                 );
             }
 
-            $chats = $this->service->getChatsForUser($userId, $areas);
+            $chats = $this->service->getChatsForUser($userId);
             return response()->json([
                 'success' => true,
                 'data' => $chats
