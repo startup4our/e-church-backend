@@ -92,8 +92,13 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::post('users/{id}/approve', [UserApprovalController::class, 'approve']);
     Route::post('users/{id}/reject', [UserApprovalController::class, 'reject']);
 
+    Route::get('chats', [ChatController::class, 'index']);
+    Route::post('chats', [ChatController::class, 'store']);
+    Route::get('chats/{id}', [ChatController::class, 'show']);
+    Route::put('chats/{id}', [ChatController::class, 'update']);
+    Route::delete('chats/{id}', [ChatController::class, 'destroy']);
     Route::post('chats/user/', [ChatController::class, 'getChats']);
-    Route::post('chats/', [ChatController::class, 'getChatById']);
+    Route::post('chats/by-id', [ChatController::class, 'getChatById']);
 
     // User profile routes
     Route::get('users/profile', [UserController::class, 'profile']);
@@ -118,6 +123,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     // Chats de usuário
     Route::post('chats/user/', [ChatController::class, 'getChats']);
+    Route::post('chats/by-id', [ChatController::class, 'getChatById']);
 
     //Handouts routes
     Route::get('/handouts', [HandoutsController::class, 'index']);           // Lista todos os handouts da igreja
