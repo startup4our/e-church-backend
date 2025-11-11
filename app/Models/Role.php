@@ -23,4 +23,11 @@ class Role extends Model
     {
         return $this->belongsTo(Area::class);
     }
+
+    // Relação com User
+    public function users()
+    {
+        return $this->belongsToMany(User::class, 'role_user')
+            ->withPivot('priority');
+    }
 }
