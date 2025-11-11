@@ -5,7 +5,8 @@
 O **Documento de Requisitos Específico (DRE)** detalha todas as funcionalidades, fluxos e regras de negócio do sistema **E-Church Backend**.  
 Ele serve como referência técnica e funcional para o desenvolvimento, manutenção e futuras expansões do projeto.
 
-📄 [Acessar DRE (GPS – PDF)](./DRE%20GPS.pdf)
+📄 [Acessar DRE (Atualizado – PDF)](./DRE%20ATUALIZADO.pdf)
+
 
 ## Descrição
 
