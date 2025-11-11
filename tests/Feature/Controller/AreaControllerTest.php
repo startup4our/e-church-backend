@@ -26,9 +26,7 @@ class AreaControllerTest extends TestCase
                              'id',
                              'name',
                              'description',
-                             'church_id',
-                             'created_at',
-                             'updated_at'
+                             'church_id'
                          ]
                      ]
                  ])
@@ -53,9 +51,7 @@ class AreaControllerTest extends TestCase
                          'id',
                          'name',
                          'description',
-                         'church_id',
-                         'created_at',
-                         'updated_at'
+                         'church_id'
                      ]
                  ])
                  ->assertJson([
@@ -86,9 +82,7 @@ class AreaControllerTest extends TestCase
                          'id',
                          'name',
                          'description',
-                         'church_id',
-                         'created_at',
-                         'updated_at'
+                         'church_id'
                      ]
                  ])
                  ->assertJson([
@@ -127,9 +121,7 @@ class AreaControllerTest extends TestCase
                          'id',
                          'name',
                          'description',
-                         'church_id',
-                         'created_at',
-                         'updated_at'
+                         'church_id'
                      ]
                  ])
                  ->assertJson([

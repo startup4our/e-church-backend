@@ -13,7 +13,6 @@ class ScheduleFactory extends Factory
 
     public function definition(): array
     {
-        $user = User::inRandomOrder()->first();
         $startDate = $this->faker->dateTimeBetween('now', '+1 year');
         $endDate = (clone $startDate)->modify('+3 hour');
 
@@ -26,7 +25,7 @@ class ScheduleFactory extends Factory
             'observation' => $this->faker->optional()->sentence(),
             'type' => $this->faker->randomElement(ScheduleType::values()),
             'approved' => $this->faker->boolean(),
-            'user_creator' => $user->id,
+            'user_creator' => User::factory(),
         ];
     }
 }

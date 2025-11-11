@@ -25,7 +25,7 @@ class ScheduleControllerTest extends TestCase
                  ->assertJsonStructure([
                      'success',
                      'data' => [
-                         '*' => ['id', 'name', 'description', 'date_time', 'type']
+                         '*' => ['id', 'name', 'description', 'start_date', 'end_date', 'type']
                      ]
                  ])
                  ->assertJsonCount(2, 'data');
@@ -43,7 +43,7 @@ class ScheduleControllerTest extends TestCase
         $response->assertStatus(200)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'name', 'description', 'date_time', 'type']
+                     'data' => ['id', 'name', 'description', 'start_date', 'end_date', 'type']
                  ])
                  ->assertJsonFragment(['id' => $schedule->id]);
     }
@@ -57,7 +57,8 @@ class ScheduleControllerTest extends TestCase
             'name' => 'Test Schedule',
             'description' => 'Description',
             'local' => 'Church',
-            'date_time' => '2025-09-01 10:00:00',
+            'start_date' => '2025-09-01 10:00:00',
+            'end_date' => '2025-09-01 12:00:00',
             'observation' => 'Note',
             'type' => ScheduleType::LOUVOR,
             'approved' => false,
@@ -69,7 +70,7 @@ class ScheduleControllerTest extends TestCase
         $response->assertStatus(201)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'name', 'description', 'date_time', 'type']
+                     'data' => ['id', 'name', 'description', 'start_date', 'end_date', 'type']
                  ])
                  ->assertJsonFragment(['name' => 'Test Schedule']);
 
@@ -88,7 +89,7 @@ class ScheduleControllerTest extends TestCase
         $response->assertStatus(200)
                  ->assertJsonStructure([
                      'success',
-                     'data' => ['id', 'name', 'description', 'date_time', 'type']
+                     'data' => ['id', 'name', 'description', 'start_date', 'end_date', 'type']
                  ])
                  ->assertJsonFragment(['name' => 'Updated']);
 

@@ -13,9 +13,16 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_authenticate_using_the_login_endpoint(): void
     {
+        $church = \App\Models\Church::factory()->create();
         $user = User::factory()->create([
             'password' => Hash::make('password'),
             'status' => \App\Enums\UserStatus::ACTIVE,
+            'church_id' => $church->id,
+        ]);
+
+        // Create permission record for the user
+        \App\Models\Permission::factory()->create([
+            'user_id' => $user->id,
         ]);
 
         $response = $this->postJson('/api/v1/auth/login', [
@@ -38,9 +45,11 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_not_authenticate_with_invalid_password(): void
     {
+        $church = \App\Models\Church::factory()->create();
         $user = User::factory()->create([
             'password' => Hash::make('password'),
             'status' => \App\Enums\UserStatus::ACTIVE,
+            'church_id' => $church->id,
         ]);
 
         $response = $this->postJson('/api/v1/auth/login', [
@@ -68,9 +77,16 @@ class AuthenticationTest extends TestCase
 
     public function test_users_can_logout(): void
     {
+        $church = \App\Models\Church::factory()->create();
         $user = User::factory()->create([
             'password' => Hash::make('password'),
             'status' => \App\Enums\UserStatus::ACTIVE,
+            'church_id' => $church->id,
+        ]);
+
+        // Create permission record for the user
+        \App\Models\Permission::factory()->create([
+            'user_id' => $user->id,
         ]);
 
         // login pra pegar token
@@ -80,6 +96,7 @@ class AuthenticationTest extends TestCase
         ]);
 
         $token = $loginResponse->json('data.access_token');
+        $this->assertNotNull($token, 'Token should be generated on login');
 
         // usa token pra logout
         $logoutResponse = $this->withHeader('Authorization', 'Bearer '.$token)

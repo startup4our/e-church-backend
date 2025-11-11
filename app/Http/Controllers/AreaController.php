@@ -171,6 +171,9 @@ class AreaController extends Controller
                 'success' => true,
                 'data' => null
             ], 204);
+        } catch (AppException $e) {
+            // Re-throw AppException as-is to preserve error codes
+            throw $e;
         } catch (\Exception $e) {
             Log::error("User [{$user->id}] failed to delete area [{$id}] because: " . $e->getMessage());
             throw new AppException(

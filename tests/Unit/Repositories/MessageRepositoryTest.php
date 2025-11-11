@@ -6,19 +6,29 @@ use App\Models\Message;
 use App\Models\User;
 use App\Models\Chat;
 use App\Repositories\MessageRepository;
+use App\Services\Interfaces\IStorageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
+use Mockery;
 
 class MessageRepositoryTest extends TestCase
 {
     use RefreshDatabase;
 
     protected MessageRepository $repository;
+    protected $storageServiceMock;
 
     protected function setUp(): void
     {
         parent::setUp();
-        $this->repository = new MessageRepository();
+        $this->storageServiceMock = Mockery::mock(IStorageService::class);
+        $this->repository = new MessageRepository($this->storageServiceMock);
+    }
+
+    protected function tearDown(): void
+    {
+        Mockery::close();
+        parent::tearDown();
     }
 
     public function test_create_and_find_by_id()

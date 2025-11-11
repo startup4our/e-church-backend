@@ -13,7 +13,7 @@ class SongControllerTest extends TestCase
 
     public function test_index_returns_songs()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['read_music']);
         $this->authenticate($user); // header Bearer JWT
 
         Song::factory()->count(2)->create();
@@ -50,7 +50,7 @@ class SongControllerTest extends TestCase
 
     public function test_store_creates_song()
     {
-        $user = User::factory()->create();
+        $user = $this->createUserWithPermissions(['create_music']);
         $this->authenticate($user);
 
         $data = [
