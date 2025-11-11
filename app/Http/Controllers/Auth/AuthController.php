@@ -66,16 +66,16 @@ class AuthController extends Controller
 
             switch ($user->status) {
                 case UserStatus::INACTIVE:
-                    Log::warning('User tried to login, but it is inactive');
+                    Log::warning('User tried to login, but it is inactive', ['user_id' => $user->id]);
                     throw new AppException(
-                        ErrorCode::UNAUTHORIZED,
+                        ErrorCode::FORBIDDEN,
                         userMessage: 'Conta inativa. Contate o administrador.'
                     );
 
                 case UserStatus::WAITING_APPROVAL:
-                    Log::warning("User tried to login, but it is waiting for admin approval of church [{$user->church_id}]");
+                    Log::warning("User tried to login, but it is waiting for admin approval of church [{$user->church_id}]", ['user_id' => $user->id]);
                     throw new AppException(
-                        ErrorCode::UNAUTHORIZED,
+                        ErrorCode::FORBIDDEN,
                         userMessage: 'Conta aguardando aprovação.'
                     );
 
@@ -290,8 +290,22 @@ class AuthController extends Controller
             Log::info('Permissões do usuário master criadas com sucesso', ['user_id' => $user->id]);
 
             // autentica e retorna token
-            Auth::login($user);
-            $token = Auth::getToken();
+            // Use the validated data with correct field names (user_email, user_password)
+            $credentials = [
+                'email' => $data['user_email'],
+                'password' => $data['user_password']
+            ];
+
+            if (! $token = Auth::attempt($credentials)) {
+                Log::warning("Automatic login failed after church registration", [
+                    'email' => $data['user_email'],
+                    'user_id' => $user->id
+                ]);
+                throw new AppException(
+                    ErrorCode::INVALID_CREDENTIALS,
+                    userMessage: 'Credenciais inválidas'
+                );
+            }
             Log::info('Token gerado com sucesso', ['user_id' => $user->id]);
 
             // Get user permission
