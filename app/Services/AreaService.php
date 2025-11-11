@@ -7,6 +7,7 @@ use App\Repositories\AreaRepository;
 use App\Repositories\ChatRepository;
 use App\Repositories\UserAreaRepository;
 use App\Services\Interfaces\IAreaService;
+use App\Services\Interfaces\IRoleService;
 use App\Enums\ChatType;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
@@ -17,12 +18,14 @@ class AreaService implements IAreaService
     private AreaRepository $repository;
     private ChatRepository $chatRepository;
     private UserAreaRepository $userAreaRepository;
+    private IRoleService $roleService;
 
-    public function __construct(AreaRepository $repository, ChatRepository $chatRepository, UserAreaRepository $userAreaRepository)
+    public function __construct(AreaRepository $repository, ChatRepository $chatRepository, UserAreaRepository $userAreaRepository, IRoleService $roleService)
     {
         $this->repository = $repository;
         $this->chatRepository = $chatRepository;
         $this->userAreaRepository = $userAreaRepository;
+        $this->roleService = $roleService;
     }
 
     public function create(array $data): Area
@@ -31,10 +34,22 @@ class AreaService implements IAreaService
         
         try {
             return DB::transaction(function () use ($data) {
+                // Extract roles if present
+                $roles = $data['roles'] ?? [];
+                unset($data['roles']);
                 
                 // Criar a área
                 $area = $this->repository->create($data);
                 Log::info("Area [{$area->id}] '{$area->name}' created successfully");
+                
+                // Create roles if provided
+                if (!empty($roles)) {
+                    foreach ($roles as $roleData) {
+                        $roleData['area_id'] = $area->id;
+                        $role = $this->roleService->create($roleData);
+                        Log::info("Role [{$role->id}] '{$role->name}' created for area [{$area->id}]");
+                    }
+                }
                 
                 // Criar o chat padrão para a área
                 $chatData = [
@@ -315,6 +330,76 @@ class AreaService implements IAreaService
             throw $e;
         } catch (\Exception $e) {
             Log::error("Failed to remove user [{$userId}] from area [{$areaId}]: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function getRolesByAreaId(int $areaId, int $churchId): Collection
+    {
+        Log::info("Retrieving roles for area [{$areaId}] in church [{$churchId}]");
+        
+        try {
+            // Verify area belongs to church
+            $this->repository->getByIdAndChurchId($areaId, $churchId);
+            
+            // Get roles for area
+            $roles = $this->roleService->getByAreaId($areaId);
+            
+            Log::info("Retrieved " . $roles->count() . " roles for area [{$areaId}] in church [{$churchId}]");
+            return $roles;
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve roles for area [{$areaId}] in church [{$churchId}]: " . $e->getMessage());
+            throw $e;
+        }
+    }
+
+    public function updateAreaRoles(int $areaId, int $churchId, array $roles): void
+    {
+        Log::info("Updating roles for area [{$areaId}] in church [{$churchId}] with " . count($roles) . " roles");
+        
+        try {
+            DB::transaction(function () use ($areaId, $churchId, $roles) {
+                // Verify area belongs to church
+                $area = $this->repository->getByIdAndChurchId($areaId, $churchId);
+                
+                // Get existing role IDs
+                $existingRoles = $this->roleService->getByAreaId($areaId);
+                $existingRoleIds = $existingRoles->pluck('id')->toArray();
+                
+                // Process roles array
+                $newRoleIds = [];
+                foreach ($roles as $roleData) {
+                    if (isset($roleData['id'])) {
+                        // Update existing role
+                        $this->roleService->update($roleData['id'], [
+                            'name' => $roleData['name'],
+                            'description' => $roleData['description'] ?? null,
+                        ]);
+                        $newRoleIds[] = $roleData['id'];
+                        Log::info("Updated role [{$roleData['id']}] '{$roleData['name']}' for area [{$areaId}]");
+                    } else {
+                        // Create new role
+                        $newRole = $this->roleService->create([
+                            'name' => $roleData['name'],
+                            'description' => $roleData['description'] ?? null,
+                            'area_id' => $areaId,
+                        ]);
+                        $newRoleIds[] = $newRole->id;
+                        Log::info("Created role [{$newRole->id}] '{$newRole->name}' for area [{$areaId}]");
+                    }
+                }
+                
+                // Delete roles not in the new list
+                $rolesToDelete = array_diff($existingRoleIds, $newRoleIds);
+                foreach ($rolesToDelete as $roleId) {
+                    $this->roleService->delete($roleId);
+                    Log::info("Deleted role [{$roleId}] from area [{$areaId}]");
+                }
+                
+                Log::info("Successfully updated roles for area [{$areaId}] in church [{$churchId}]");
+            });
+        } catch (\Exception $e) {
+            Log::error("Failed to update roles for area [{$areaId}] in church [{$churchId}]: " . $e->getMessage());
             throw $e;
         }
     }

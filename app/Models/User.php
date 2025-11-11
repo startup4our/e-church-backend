@@ -71,7 +71,17 @@ class User extends Authenticatable implements JWTSubject
 
     public function roles()
     {
-        return $this->belongsToMany(Role::class, 'role_user');
+        return $this->belongsToMany(Role::class, 'role_user')
+            ->withPivot('priority')
+            ->orderBy('role_user.priority', 'asc');
+    }
+
+    /**
+     * Get user roles ordered by priority
+     */
+    public function getRolesByPriority()
+    {
+        return $this->roles()->orderBy('role_user.priority', 'asc')->get();
     }
 
     public function userSchedules()

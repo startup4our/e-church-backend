@@ -34,4 +34,25 @@ class RoleRepository
         $role = Role::findOrFail($id);
         return (bool) $role->delete();
     }
+
+    public function getByAreaId(int $areaId): Collection
+    {
+        return Role::where('area_id', $areaId)->orderBy('name')->get();
+    }
+
+    public function createBatch(array $rolesData, int $areaId): Collection
+    {
+        $roles = collect();
+        foreach ($rolesData as $roleData) {
+            $roleData['area_id'] = $areaId;
+            $role = $this->create($roleData);
+            $roles->push($role);
+        }
+        return $roles;
+    }
+
+    public function deleteByAreaId(int $areaId): void
+    {
+        Role::where('area_id', $areaId)->delete();
+    }
 }

@@ -77,6 +77,9 @@ class AreaController extends Controller
             $data = $request->validate([
                 'name' => 'required|string|max:255',
                 'description' => 'nullable|string|max:1000',
+                'roles' => 'nullable|array',
+                'roles.*.name' => 'required_with:roles|string|max:120',
+                'roles.*.description' => 'nullable|string|max:255',
             ]);
 
             $data['church_id'] = $user->church_id;
@@ -356,6 +359,92 @@ class AreaController extends Controller
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro ao remover usuário da área'
+            );
+        }
+    }
+
+    public function getRoles(int $id)
+    {
+        $user = Auth::user();
+        
+        // Check if user has permission to read areas
+        if (!$this->permissionService->hasPermission($user->id, 'read_area')) {
+            Log::warning("User [{$user->id}] attempted to view roles for area [{$id}] without permission");
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para visualizar funções das áreas'
+            );
+        }
+
+        Log::info("User [{$user->id}] requested to view roles for area [{$id}]");
+
+        try {
+            $roles = $this->areaService->getRolesByAreaId($id, $user->church_id);
+            
+            $rolesData = $roles->map(function ($role) {
+                return [
+                    'id' => $role->id,
+                    'name' => $role->name,
+                    'description' => $role->description ?? '',
+                ];
+            });
+            
+            Log::info("User [{$user->id}] successfully retrieved " . $rolesData->count() . " roles for area [{$id}]");
+            
+            return response()->json([
+                'success' => true,
+                'data' => $rolesData
+            ]);
+        } catch (\Exception $e) {
+            Log::error("User [{$user->id}] failed to retrieve roles for area [{$id}]: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::AREA_NOT_FOUND,
+                userMessage: 'Área não encontrada'
+            );
+        }
+    }
+
+    public function updateRoles(Request $request, int $id)
+    {
+        $user = Auth::user();
+        
+        // Check if user has permission to update areas
+        if (!$this->permissionService->hasPermission($user->id, 'update_area')) {
+            Log::warning("User [{$user->id}] attempted to update roles for area [{$id}] without permission");
+            throw new AppException(
+                ErrorCode::PERMISSION_DENIED,
+                userMessage: 'Você não tem permissão para editar funções das áreas'
+            );
+        }
+
+        Log::info("User [{$user->id}] attempting to update roles for area [{$id}]");
+
+        try {
+            $data = $request->validate([
+                'roles' => 'required|array',
+                'roles.*.id' => 'nullable|integer|exists:role,id',
+                'roles.*.name' => 'required|string|max:120',
+                'roles.*.description' => 'nullable|string|max:255',
+            ]);
+
+            $this->areaService->updateAreaRoles($id, $user->church_id, $data['roles']);
+            Log::info("User [{$user->id}] successfully updated roles for area [{$id}]");
+            
+            return response()->json([
+                'success' => true,
+                'message' => 'Funções da área atualizadas com sucesso'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            Log::warning("User [{$user->id}] failed to update roles for area [{$id}] because of validation errors: " . json_encode($e->errors()));
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            Log::error("User [{$user->id}] failed to update roles for area [{$id}]: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao atualizar funções da área'
             );
         }
     }
