@@ -281,6 +281,7 @@ class AuthController extends Controller
                 'update_chat' => true,
                 'delete_chat' => true,
 
+                'manage_handouts'        => true,
                 'manage_users'           => true,
                 'manage_church_settings' => true,
                 'manage_app_settings'    => true,

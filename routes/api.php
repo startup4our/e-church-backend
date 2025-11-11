@@ -64,6 +64,8 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::post('areas/{userId}/add-user', [AreaController::class, 'addUserToArea']);
     Route::delete('areas/{userId}/remove-user/{areaId}', [AreaController::class, 'removeUserFromArea']);
     Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
+    Route::get('areas/{id}/roles', [AreaController::class, 'getRoles']);
+    Route::put('areas/{id}/roles', [AreaController::class, 'updateRoles']);
 
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
@@ -101,6 +103,12 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::get('users/by-church', [UserController::class, 'getUsersByChurch']);
     Route::put('users/{id}', [UserController::class, 'updateUser']);
     Route::patch('users/{id}/toggle-status', [UserController::class, 'toggleUserStatus']);
+    
+    // User roles management routes
+    Route::get('users/{id}/roles', [UserController::class, 'getRoles']);
+    Route::post('users/{id}/roles', [UserController::class, 'attachRole']);
+    Route::delete('users/{id}/roles/{roleId}', [UserController::class, 'detachRole']);
+    Route::put('users/{id}/roles/{roleId}/priority', [UserController::class, 'updateRolePriority']);
 
     // Permission routes
     Route::put('permission/user/{userId}', [PermissionController::class, 'updateByUserId']);

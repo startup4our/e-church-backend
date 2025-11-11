@@ -26,7 +26,7 @@ class UpdatePermissionRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'user_id' => ['required','integer','exists:users,id'],
+            'user_id' => ['nullable','integer','exists:users,id'],
             'create_scale' => ['boolean', 'sometimes'],
             'read_scale' => ['boolean', 'sometimes'],
             'update_scale' => ['boolean', 'sometimes'],
@@ -53,3 +53,4 @@ class UpdatePermissionRequest extends FormRequest
         ];
     }
 }
+

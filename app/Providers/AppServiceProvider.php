@@ -12,11 +12,13 @@ use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\IPermissionService;
 use App\Services\Interfaces\IUnavailabilityService;
 use App\Services\Interfaces\IUserApprovalService;
+use App\Services\Interfaces\IUserRoleService;
 use App\Services\Interfaces\IUserService;
 use App\Services\MessageService;
 use App\Services\PermissionService;
 use App\Services\UnavailabilityService;
 use App\Services\UserApprovalService;
+use App\Services\UserRoleService;
 use App\Services\UserService;
 use Illuminate\Support\ServiceProvider;
 use App\Services\Interfaces\IAreaService;
@@ -65,6 +67,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IUserService::class, UserService::class);
         $this->app->bind(IUserApprovalService::class, UserApprovalService::class);
         $this->app->bind(IHandoutService::class, HandoutService::class);
+        $this->app->bind(IUserRoleService::class, UserRoleService::class);
     }
 
     /**

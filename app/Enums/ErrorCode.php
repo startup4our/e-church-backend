@@ -39,15 +39,23 @@ enum ErrorCode: string
     case USER_NOT_IN_CHURCH = 'USER_NOT_IN_CHURCH';
     case SCHEDULE_ALREADY_EXISTS = 'SCHEDULE_ALREADY_EXISTS';
     
+    // Role-specific
+    case ROLE_NOT_FOUND = 'ROLE_NOT_FOUND';
+    case ROLE_ALREADY_ASSIGNED = 'ROLE_ALREADY_ASSIGNED';
+    case INVALID_ROLE_PRIORITY = 'INVALID_ROLE_PRIORITY';
+    case ROLE_AREA_MISMATCH = 'ROLE_AREA_MISMATCH';
+    
     public function getHttpStatusCode(): int
     {
         return match($this) {
             self::UNAUTHORIZED, self::TOKEN_EXPIRED, self::INVALID_CREDENTIALS, self::INVITE_EXPIRED  => 401,
             self::FORBIDDEN, self::PERMISSION_DENIED => 403,
-            self::RESOURCE_NOT_FOUND, self::CHURCH_NOT_FOUND, self::HANDOUT_NOT_FOUND, self::AREA_NOT_FOUND => 404,
-            self::VALIDATION_ERROR, self::REQUIRED_FIELD_MISSING, self::INVALID_FORMAT => 422,
+            self::RESOURCE_NOT_FOUND, self::CHURCH_NOT_FOUND, self::HANDOUT_NOT_FOUND, self::AREA_NOT_FOUND, self::ROLE_NOT_FOUND => 404,
+            self::ROLE_AREA_MISMATCH => 422,
+            self::VALIDATION_ERROR, self::REQUIRED_FIELD_MISSING, self::INVALID_FORMAT, self::INVALID_ROLE_PRIORITY => 422,
             self::RESOURCE_ALREADY_EXISTS, self::RESOURCE_CONFLICT, self::SCHEDULE_CONFLICT, 
-            self::SCHEDULE_ALREADY_EXISTS, self::BUSINESS_RULE_VIOLATION, self::AREA_HAS_USERS => 409,
+            self::SCHEDULE_ALREADY_EXISTS, self::BUSINESS_RULE_VIOLATION, self::AREA_HAS_USERS, 
+            self::ROLE_ALREADY_ASSIGNED => 409,
             self::SERVICE_UNAVAILABLE => 503,
             default => 500,
         };
@@ -78,6 +86,10 @@ enum ErrorCode: string
             self::AREA_HAS_USERS => 'Não é possível excluir uma área que possui usuários associados',
             self::USER_NOT_IN_CHURCH => 'Usuário não pertence à igreja',
             self::SCHEDULE_ALREADY_EXISTS => 'Escala já existe',
+            self::ROLE_NOT_FOUND => 'Função não encontrada',
+            self::ROLE_ALREADY_ASSIGNED => 'Função já está atribuída ao usuário',
+            self::INVALID_ROLE_PRIORITY => 'Prioridade de função inválida',
+            self::ROLE_AREA_MISMATCH => 'O usuário não pertence à área desta função',
         };
     }
 }
