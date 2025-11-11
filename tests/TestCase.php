@@ -51,6 +51,7 @@ abstract class TestCase extends BaseTestCase
             'update_chat' => false,
             'delete_chat' => false,
             'manage_users' => false,
+            'manage_handouts' => false,
             'manage_church_settings' => false,
             'manage_app_settings' => false,
         ];
