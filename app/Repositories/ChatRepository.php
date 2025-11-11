@@ -92,4 +92,14 @@ class ChatRepository
                           ->where('chatable_id', $areaId)
                           ->first();
     }
+
+    /**
+     * Buscar chat específico de uma escala (schedule)
+     */
+    public function getChatBySchedule(int $scheduleId): ?Chat
+    {
+        return $this->model->where('chatable_type', ChatType::SCALE->value)
+                          ->where('chatable_id', $scheduleId)
+                          ->first();
+    }
 }

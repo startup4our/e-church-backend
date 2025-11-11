@@ -26,18 +26,24 @@ class ScheduleService implements IScheduleService
 
     public function create(array $data): Schedule
     {
-        //We must create a chat before create a schedule
         $schedule = $this->repository->create($data);
         Log::info("Created schedule, going to create chat for schedule [{$schedule->id}]");
 
-        $chat = $this->chatRepository->create([
-            'name' => $schedule->name,
-            'description' => "Chat da escala '{$schedule->name}'",
-            'chatable_id' => $schedule->id,
-            'chatable_type' => ChatType::SCALE
-        ]);
+        // Check if chat already exists for this schedule
+        $existingChat = $this->chatRepository->getChatBySchedule($schedule->id);
+        
+        if (!$existingChat) {
+            $chat = $this->chatRepository->create([
+                'name' => $schedule->name,
+                'description' => "Chat da escala '{$schedule->name}'",
+                'chatable_id' => $schedule->id,
+                'chatable_type' => ChatType::SCALE->value
+            ]);
 
-        Log::info("Created chat [{$chat->id}]");
+            Log::info("Created chat [{$chat->id}]");
+        } else {
+            Log::info("Chat already exists for schedule [{$schedule->id}], skipping creation");
+        }
 
         return $schedule;
     }

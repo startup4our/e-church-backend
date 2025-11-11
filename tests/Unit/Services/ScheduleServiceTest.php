@@ -44,12 +44,19 @@ class ScheduleServiceTest extends TestCase
             'user_creator' => 1
         ];
         $expected = new Schedule($data);
+        $expected->id = 1;
 
         $this->repositoryMock
             ->shouldReceive('create')
             ->once()
             ->with($data)
             ->andReturn($expected);
+
+        $this->chatRepositoryMock
+            ->shouldReceive('getChatBySchedule')
+            ->once()
+            ->with(1)
+            ->andReturn(null);
 
         $this->chatRepositoryMock
             ->shouldReceive('create')
@@ -59,6 +66,130 @@ class ScheduleServiceTest extends TestCase
         $result = $this->service->create($data);
 
         $this->assertEquals($expected, $result);
+    }
+
+    public function test_create_schedule_creates_chat_when_chat_does_not_exist()
+    {
+        $data = [
+            'name' => 'Test Schedule',
+            'description' => 'Description',
+            'local' => 'Church',
+            'start_date' => '2025-09-01 10:00:00',
+            'end_date' => '2025-09-01 12:00:00',
+            'type' => ScheduleType::LOUVOR,
+            'user_creator' => 1
+        ];
+        
+        $schedule = new Schedule($data);
+        $schedule->id = 1;
+        $chat = new \App\Models\Chat();
+
+        $this->repositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->with($data)
+            ->andReturn($schedule);
+
+        $this->chatRepositoryMock
+            ->shouldReceive('getChatBySchedule')
+            ->once()
+            ->with(1)
+            ->andReturn(null); // Chat doesn't exist
+
+        $this->chatRepositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->with(Mockery::on(function ($arg) use ($schedule) {
+                return $arg['name'] === $schedule->name
+                    && $arg['chatable_id'] === $schedule->id
+                    && $arg['chatable_type'] === \App\Enums\ChatType::SCALE->value;
+            }))
+            ->andReturn($chat);
+
+        $result = $this->service->create($data);
+
+        $this->assertEquals($schedule, $result);
+    }
+
+    public function test_create_schedule_does_not_create_chat_when_chat_exists()
+    {
+        $data = [
+            'name' => 'Test Schedule',
+            'description' => 'Description',
+            'local' => 'Church',
+            'start_date' => '2025-09-01 10:00:00',
+            'end_date' => '2025-09-01 12:00:00',
+            'type' => ScheduleType::LOUVOR,
+            'user_creator' => 1
+        ];
+        
+        $schedule = new Schedule($data);
+        $schedule->id = 1;
+        $existingChat = new \App\Models\Chat();
+
+        $this->repositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->with($data)
+            ->andReturn($schedule);
+
+        $this->chatRepositoryMock
+            ->shouldReceive('getChatBySchedule')
+            ->once()
+            ->with(1)
+            ->andReturn($existingChat); // Chat already exists
+
+        $this->chatRepositoryMock
+            ->shouldReceive('create')
+            ->never(); // Should not create chat
+
+        $result = $this->service->create($data);
+
+        $this->assertEquals($schedule, $result);
+    }
+
+    public function test_create_schedule_verifies_chat_has_correct_schedule_association()
+    {
+        $data = [
+            'name' => 'Test Schedule',
+            'description' => 'Description',
+            'local' => 'Church',
+            'start_date' => '2025-09-01 10:00:00',
+            'end_date' => '2025-09-01 12:00:00',
+            'type' => ScheduleType::LOUVOR,
+            'user_creator' => 1
+        ];
+        
+        $schedule = new Schedule($data);
+        $schedule->id = 1;
+        $chat = new \App\Models\Chat();
+
+        $this->repositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->with($data)
+            ->andReturn($schedule);
+
+        $this->chatRepositoryMock
+            ->shouldReceive('getChatBySchedule')
+            ->once()
+            ->with(1)
+            ->andReturn(null);
+
+        $this->chatRepositoryMock
+            ->shouldReceive('create')
+            ->once()
+            ->with(Mockery::on(function ($arg) use ($schedule) {
+                return $arg['name'] === $schedule->name
+                    && $arg['chatable_id'] === $schedule->id
+                    && $arg['chatable_type'] === \App\Enums\ChatType::SCALE->value
+                    && str_contains($arg['description'], $schedule->name);
+            }))
+            ->andReturn($chat);
+
+        $result = $this->service->create($data);
+
+        $this->assertEquals($schedule, $result);
     }
 
     public function test_get_all_schedules()
