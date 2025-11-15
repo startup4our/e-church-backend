@@ -46,6 +46,14 @@ class UserScheduleService implements IUserScheduleService
         return $schedules;
     }
 
+    public function getMySchedules(): SupportCollection
+    {
+        $schedules = $this->repository->getMySchedules();
+        $schedules = $schedules->map(fn($schedule) => new ScheduleDTO($schedule));
+
+        return $schedules;
+    }
+
     public function getById(int $id): UserSchedule
     {
         return $this->repository->getById($id);

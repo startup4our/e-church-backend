@@ -68,9 +68,50 @@ class ScheduleService implements IScheduleService
         return $this->repository->delete($id);
     }
 
-    public function generateSchedule(int $scheduleId, array $areas, int $maxUsers)
+    public function generateSchedule(int $scheduleId, array $areas, array $roleRequirements)
     {
         // Delegar toda a lógica para o repository
-        return $this->repository->generateSchedule($scheduleId, $areas, $maxUsers);
+        return $this->repository->generateSchedule($scheduleId, $areas, $roleRequirements);
+    }
+
+    public function publish(int $scheduleId): Schedule
+    {
+        $schedule = $this->repository->getById($scheduleId);
+        
+        // Atualizar status para ACTIVE
+        $schedule->status = \App\Enums\ScheduleStatus::ACTIVE;
+        $schedule->save();
+        
+        Log::info("Schedule [{$scheduleId}] published, status changed to ACTIVE");
+        
+        // Buscar todos os participantes
+        $participants = \App\Models\UserSchedule::where('schedule_id', $scheduleId)
+            ->with('user')
+            ->get();
+        
+        Log::info("Found {$participants->count()} participants for schedule [{$scheduleId}]");
+        
+        // Enviar email para cada participante
+        foreach ($participants as $userSchedule) {
+            if ($userSchedule->user && $userSchedule->user->email) {
+                try {
+                    \Illuminate\Support\Facades\Mail::to($userSchedule->user->email)
+                        ->send(new \App\Mail\SchedulePublishedMail($schedule));
+                    Log::info("Published schedule email sent", [
+                        'schedule_id' => $scheduleId,
+                        'user_id' => $userSchedule->user->id,
+                        'email' => $userSchedule->user->email
+                    ]);
+                } catch (\Exception $e) {
+                    Log::error("Failed to send published schedule email", [
+                        'schedule_id' => $scheduleId,
+                        'user_id' => $userSchedule->user->id,
+                        'error' => $e->getMessage()
+                    ]);
+                }
+            }
+        }
+        
+        return $schedule;
     }
 }

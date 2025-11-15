@@ -66,6 +66,22 @@ class UserScheduleController extends Controller
         }
     }
 
+    public function getMySchedules()
+    {
+        try {
+            $schedules = $this->userScheduleService->getMySchedules();
+            return response()->json([
+                'success' => true,
+                'data' => $schedules
+            ]);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
     public function show(int $id)
     {
         try {
@@ -148,7 +164,17 @@ class UserScheduleController extends Controller
                 'area_id' => 'required|integer|exists:area,id',
                 'schedule_id' => 'required|integer|exists:schedule,id',
                 'user_id' => 'required|integer|exists:users,id',
+                'role_id' => 'nullable|integer|exists:role,id',
             ]);
+
+            // Verificar se a escala está ativa
+            $schedule = \App\Models\Schedule::findOrFail($data['schedule_id']);
+            if ($schedule->status === \App\Enums\ScheduleStatus::ACTIVE) {
+                throw new AppException(
+                    ErrorCode::VALIDATION_ERROR,
+                    userMessage: 'Não é possível adicionar participantes em uma escala publicada'
+                );
+            }
 
             $userSchedule = $this->userScheduleService->create($data);
             return response()->json([
@@ -160,6 +186,8 @@ class UserScheduleController extends Controller
                 ErrorCode::VALIDATION_ERROR,
                 details: $e->errors()
             );
+        } catch (AppException $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
@@ -245,6 +273,8 @@ class UserScheduleController extends Controller
                 ErrorCode::VALIDATION_ERROR,
                 details: $e->errors()
             );
+        } catch (AppException $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,

@@ -16,6 +16,7 @@ class UserSchedule extends Model
         'schedule_id',
         'user_id',
         'area_id',
+        'role_id',
         'status'
     ];
 
@@ -37,5 +38,10 @@ class UserSchedule extends Model
     public function area()
     {
         return $this->belongsTo(Area::class, 'area_id');
+    }
+
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'role_id');
     }
 }

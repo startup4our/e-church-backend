@@ -157,34 +157,68 @@ class ScheduleController extends Controller
             $request->validate([
                 'user_id' => 'required|integer',
                 'areas' => 'required|array|min:1',
-                'max_users' => 'required|integer|min:1',
+                'areas.*' => 'integer|exists:area,id',
+                'roles' => 'required|array|min:1',
+                'roles.*.role_id' => 'required|integer|exists:role,id',
+                'roles.*.area_id' => 'required|integer|exists:area,id',
+                'roles.*.count' => 'required|integer|min:1',
             ]);
 
             $userId = $request->user_id;
 
             // Verificar permissão
+            Log::info("Checking permission to generate schedule", [
+                'user_id' => $userId,
+                'schedule_id' => $scheduleId
+            ]);
+
             if (!$this->permissionService->canCreateScale($userId)) {
+                Log::warning("User attempted to generate schedule without permission", [
+                    'user_id' => $userId,
+                    'schedule_id' => $scheduleId
+                ]);
                 throw new AppException(
                     ErrorCode::PERMISSION_DENIED,
                     userMessage: 'Você não tem permissão para gerar escalas'
                 );
             }
 
-            $selectedUsers = $this->scheduleService->generateSchedule(
+            Log::info("Permission verified, proceeding with schedule generation", [
+                'user_id' => $userId,
+                'schedule_id' => $scheduleId
+            ]);
+
+            // Verificar status da escala
+            $schedule = $this->scheduleService->getById($scheduleId);
+            if ($schedule->status === \App\Enums\ScheduleStatus::ACTIVE) {
+                throw new AppException(
+                    ErrorCode::VALIDATION_ERROR,
+                    userMessage: 'Não é possível gerar escala automaticamente em uma escala publicada'
+                );
+            }
+            if ($schedule->status !== \App\Enums\ScheduleStatus::DRAFT) {
+                throw new AppException(
+                    ErrorCode::VALIDATION_ERROR,
+                    userMessage: 'Apenas escalas em status Rascunho podem ser geradas automaticamente'
+                );
+            }
+
+            $result = $this->scheduleService->generateSchedule(
                 $scheduleId,
                 $request->areas,
-                $request->max_users
+                $request->roles
             );
 
             return response()->json([
                 'success' => true,
                 'data' => [
                     'schedule_id' => $scheduleId,
-                    'selected_users' => $selectedUsers->map(fn($u) => [
+                    'selected_users' => $result['users']->map(fn($u) => [
                         'id' => $u->id,
                         'name' => $u->name,
                         'email' => $u->email
-                    ])
+                    ]),
+                    'statistics' => $result['statistics']
                 ]
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
@@ -195,6 +229,69 @@ class ScheduleController extends Controller
         } catch (AppException $e) {
             throw $e;
         } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    public function publish(Request $request, int $scheduleId)
+    {
+        try {
+            $request->validate([
+                'user_id' => 'required|integer',
+            ]);
+
+            $userId = $request->user_id;
+
+            // Verificar permissão
+            if (!$this->permissionService->hasPermission($userId, 'update_scale')) {
+                Log::warning("User attempted to publish schedule without permission", [
+                    'user_id' => $userId,
+                    'schedule_id' => $scheduleId
+                ]);
+                throw new AppException(
+                    ErrorCode::PERMISSION_DENIED,
+                    userMessage: 'Você não tem permissão para publicar escalas'
+                );
+            }
+
+            // Buscar a escala
+            $schedule = $this->scheduleService->getById($scheduleId);
+
+            // Verificar se já está ativa
+            if ($schedule->status === \App\Enums\ScheduleStatus::ACTIVE) {
+                throw new AppException(
+                    ErrorCode::VALIDATION_ERROR,
+                    userMessage: 'Esta escala já está publicada'
+                );
+            }
+
+            // Verificar se está em rascunho
+            if ($schedule->status !== \App\Enums\ScheduleStatus::DRAFT) {
+                throw new AppException(
+                    ErrorCode::VALIDATION_ERROR,
+                    userMessage: 'Apenas escalas em status Rascunho podem ser publicadas'
+                );
+            }
+
+            // Publicar a escala (mudar status para ACTIVE)
+            $schedule = $this->scheduleService->publish($scheduleId);
+
+            return response()->json([
+                'success' => true,
+                'data' => $schedule
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (AppException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            Log::error("Failed to publish schedule [{$scheduleId}]: " . $e->getMessage());
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
                 userMessage: 'Erro interno do servidor'
