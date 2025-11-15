@@ -11,4 +11,6 @@ interface IUnavailabilityService
     public function get(int $id): ?Unavailability;
     public function update(Unavailability $unavailability, array $data): Unavailability;
     public function delete(Unavailability $unavailability): void;
+    public function getByUserId(int $userId);
+    public function syncByUserId(int $userId, array $unavailabilities): void;
 }

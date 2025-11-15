@@ -67,6 +67,8 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::get('areas/{id}/roles', [AreaController::class, 'getRoles']);
     Route::put('areas/{id}/roles', [AreaController::class, 'updateRoles']);
 
+    Route::get('unavailability/my', [UnavailabilityController::class, 'my']);
+    Route::post('unavailability/sync', [UnavailabilityController::class, 'sync']);
     Route::apiResource('unavailability', UnavailabilityController::class);
     Route::apiResource('churches', ChurchController::class);
     Route::apiResource('songs', SongController::class);

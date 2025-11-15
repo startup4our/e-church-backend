@@ -54,4 +54,14 @@ class UnavailabilityService implements IUnavailabilityService
     {
         $this->repository->delete($unavailability);
     }
+
+    public function getByUserId(int $userId)
+    {
+        return $this->repository->findByUserId($userId);
+    }
+
+    public function syncByUserId(int $userId, array $unavailabilities): void
+    {
+        $this->repository->syncByUserId($userId, $unavailabilities);
+    }
 }
