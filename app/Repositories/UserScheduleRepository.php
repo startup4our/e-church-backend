@@ -6,15 +6,18 @@ use App\Enums\UserScheduleStatus;
 use App\Models\UserSchedule;
 use App\Models\Schedule;
 use App\Models\User;
+use App\Services\Interfaces\IStorageService;
 use Illuminate\Database\Eloquent\Collection;
 
 class UserScheduleRepository
 {
     protected $model;
+    protected IStorageService $storageService;
 
-    public function __construct(UserSchedule $userSchedule)
+    public function __construct(UserSchedule $userSchedule, IStorageService $storageService)
     {
         $this->model = $userSchedule;
+        $this->storageService = $storageService;
     }
 
     public function getAll(): Collection
@@ -140,6 +143,23 @@ class UserScheduleRepository
 
             // Adiciona o campo 'statusSchedule'
             $user->setAttribute('statusSchedule', $userSchedule->status ?? null);
+
+            // Generate signed URL for photo if exists
+            if ($user->photo_path) {
+                try {
+                    $user->setAttribute('photo_url', $this->storageService->getSignedUrl($user->photo_path, 60));
+                } catch (\Exception $e) {
+                    \Log::warning('Failed to generate signed URL for user photo', [
+                        'user_id' => $user->id,
+                        'photo_path' => $user->photo_path,
+                        'error' => $e->getMessage()
+                    ]);
+                    $user->setAttribute('photo_url', null);
+                }
+            } else {
+                $user->setAttribute('photo_url', null);
+            }
+
             return $user;
         });
 
