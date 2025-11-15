@@ -48,6 +48,7 @@ Route::middleware(['auth:api'])->get('/v1/user', function (Request $request) {
 Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     Route::get('user-schedules/show-all-schedules', [UserScheduleController::class, 'getAllSchedules']);
+    Route::get('user-schedules/my-schedules', [UserScheduleController::class, 'getMySchedules']);
     Route::get('user-schedules/show-users-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getUsersByScheduleId']);
     Route::get('user-schedules/show-schedule-by-schedule-id/{scheduleId}', [UserScheduleController::class, 'getScheduleByScheduleId']);
     Route::get('user-schedules/show-schedule-by-schedule/create', [UserScheduleController::class, 'store']);
@@ -80,6 +81,9 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
 
     // Geração automática de escala
     Route::post('schedules/{schedule}/generate', [ScheduleController::class, 'generate']);
+    
+    // Publicar escala
+    Route::post('schedules/{schedule}/publish', [ScheduleController::class, 'publish']);
 
     // Convites (requer autenticação)
     Route::get('invites', [InviteController::class, 'index']);

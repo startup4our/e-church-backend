@@ -21,9 +21,17 @@ interface IScheduleService
      * Gera a escala automática para um schedule existente.
      *
      * @param int $scheduleId
-     * @param array $areas
-     * @param int $maxUsers
-     * @return \Illuminate\Support\Collection
+     * @param array $areas Array de IDs de áreas
+     * @param array $roleRequirements Array no formato [['role_id' => int, 'area_id' => int, 'count' => int], ...]
+     * @return array ['users' => Collection, 'statistics' => array]
      */
-    public function generateSchedule(int $scheduleId, array $areas, int $maxUsers);
+    public function generateSchedule(int $scheduleId, array $areas, array $roleRequirements);
+
+    /**
+     * Publica uma escala, alterando seu status para ACTIVE e enviando notificações por email.
+     *
+     * @param int $scheduleId
+     * @return Schedule
+     */
+    public function publish(int $scheduleId): Schedule;
 }

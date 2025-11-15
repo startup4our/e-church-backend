@@ -2,6 +2,7 @@
 
 namespace App\Console;
 
+use App\Jobs\CloseExpiredSchedulesJob;
 use App\Jobs\DeleteOldMessagesJob;
 use App\Jobs\HandoutsManagerJob;
 use Illuminate\Console\Scheduling\Schedule;
@@ -15,7 +16,9 @@ class Kernel extends ConsoleKernel
     protected function schedule(Schedule $schedule): void
     {
         $schedule->job(new HandoutsManagerJob())->everyFiveMinutes();
+        $schedule->job(new CloseExpiredSchedulesJob())->everyFiveMinutes();
         $schedule->job(new DeleteOldMessagesJob())->daily();
+        $schedule->job(new \App\Jobs\CheckScheduleRemindersJob())->everyFifteenMinutes();
     }
 
     /**

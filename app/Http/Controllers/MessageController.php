@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Exceptions\AppException;
 use App\Enums\ErrorCode;
+use App\Enums\ChatType;
 use App\Models\Message;
 use App\Services\Interfaces\IMessageService;
 use App\Services\Interfaces\IStorageService;
@@ -47,6 +48,18 @@ class MessageController extends Controller
                 'chat_id' => 'required',
                 'user_id' => 'required',
             ]);
+
+            // Verificar se é chat de escala e se está ativa
+            $chat = \App\Models\Chat::find($data['chat_id']);
+            if ($chat && $chat->chatable_type === ChatType::SCALE->value) {
+                $schedule = \App\Models\Schedule::find($chat->chatable_id);
+                if ($schedule && $schedule->status !== \App\Enums\ScheduleStatus::ACTIVE) {
+                    throw new AppException(
+                        ErrorCode::PERMISSION_DENIED,
+                        userMessage: 'Não é possível enviar mensagens no chat de uma escala não publicada'
+                    );
+                }
+            }
 
             $imagePath = null;
             $imageUrl = null;

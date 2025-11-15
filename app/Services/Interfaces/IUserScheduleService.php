@@ -17,6 +17,8 @@ interface IUserScheduleService
 
     public function getAllSchedules(): SupportCollection;
 
+    public function getMySchedules(): SupportCollection;
+
     public function getById(int $id): UserSchedule;
 
     public function getScheduleByScheduleId(int $id): ScheduleDTO;
