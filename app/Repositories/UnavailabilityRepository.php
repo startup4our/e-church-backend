@@ -44,4 +44,30 @@ class UnavailabilityRepository
     {
         $unavailability->delete();
     }
+
+    public function findByUserId(int $userId)
+    {
+        return Unavailability::where('user_id', $userId)->get();
+    }
+
+    public function syncByUserId(int $userId, array $unavailabilities): void
+    {
+        // Remove todas as indisponibilidades existentes do usuário
+        Unavailability::where('user_id', $userId)->delete();
+
+        // Cria as novas indisponibilidades
+        if (!empty($unavailabilities)) {
+            $data = array_map(function ($item) use ($userId) {
+                return [
+                    'user_id' => $userId,
+                    'weekday' => $item['weekday'],
+                    'shift' => $item['shift'],
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }, $unavailabilities);
+
+            Unavailability::insert($data);
+        }
+    }
 }

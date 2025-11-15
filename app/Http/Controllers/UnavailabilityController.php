@@ -8,6 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Unavailability;
 use App\Services\Interfaces\IUnavailabilityService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class UnavailabilityController extends Controller
 {
@@ -111,6 +112,76 @@ class UnavailabilityController extends Controller
                 'success' => true,
                 'data' => null
             ], 204);
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    public function my()
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                throw new AppException(
+                    ErrorCode::UNAUTHORIZED,
+                    userMessage: 'Usuário não autenticado'
+                );
+            }
+
+            $unavailabilities = $this->service->getByUserId($user->id);
+            return response()->json([
+                'success' => true,
+                'data' => $unavailabilities
+            ]);
+        } catch (AppException $e) {
+            throw $e;
+        } catch (\Exception $e) {
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro interno do servidor'
+            );
+        }
+    }
+
+    public function sync(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                throw new AppException(
+                    ErrorCode::UNAUTHORIZED,
+                    userMessage: 'Usuário não autenticado'
+                );
+            }
+
+            $data = $request->validate([
+                'unavailabilities' => 'required|array',
+                'unavailabilities.*.weekday' => 'required|in:0,1,2,3,4,5,6',
+                'unavailabilities.*.shift' => 'required|in:manha,tarde,noite',
+            ]);
+
+            $this->service->syncByUserId($user->id, $data['unavailabilities']);
+
+            // Retorna as indisponibilidades atualizadas
+            $unavailabilities = $this->service->getByUserId($user->id);
+            
+            return response()->json([
+                'success' => true,
+                'data' => $unavailabilities,
+                'message' => 'Disponibilidade atualizada com sucesso'
+            ], 200);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (AppException $e) {
+            throw $e;
         } catch (\Exception $e) {
             throw new AppException(
                 ErrorCode::INTERNAL_SERVER_ERROR,
