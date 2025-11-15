@@ -217,19 +217,17 @@ class ScheduleRepository
     {
         $userIds = $users->pluck('id')->toArray();
 
-        // Histórico do mês (excluindo a escala atual que está sendo regenerada)
+        // Histórico do mês
         $userSchedules = UserSchedule::query()
             ->whereIn('user_id', $userIds)
-            ->where('schedule_id', '!=', $schedule->id) // Excluir escala atual
             ->whereMonth('created_at', $schedule->start_date->month)
             ->whereYear('created_at', $schedule->start_date->year)
             ->get()
             ->groupBy('user_id');
 
-        // Última escala de cada usuário (excluindo a escala atual)
+        // Última escala de cada usuário
         $lastSchedules = UserSchedule::query()
             ->whereIn('user_id', $userIds)
-            ->where('schedule_id', '!=', $schedule->id) // Excluir escala atual
             ->with('schedule')
             ->orderBy('created_at', 'desc')
             ->get()
@@ -265,10 +263,9 @@ class ScheduleRepository
         $selectedUsers = collect();
         $userIds = $users->pluck('id')->toArray();
 
-        // Carregar histórico de escalas para ordenação (excluindo a escala atual)
+        // Carregar histórico de escalas para ordenação
         $userSchedules = UserSchedule::query()
             ->whereIn('user_id', $userIds)
-            ->where('schedule_id', '!=', $schedule->id) // Excluir escala atual
             ->whereMonth('created_at', $schedule->start_date->month)
             ->whereYear('created_at', $schedule->start_date->year)
             ->get()
