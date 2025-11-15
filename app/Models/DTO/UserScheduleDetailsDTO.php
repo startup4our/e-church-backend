@@ -15,6 +15,7 @@ class UserScheduleDetailsDTO
     public ?string $birthday;
     public ?UserScheduleStatus $statusSchedule;
     public ?string $area;
+    public ?string $role;
 
     public function __construct($schedule)
     {

@@ -15,6 +15,7 @@ class AvailableUserScheduleDTO
     public ?string $birthday;
     // public ?UserScheduleStatus $statusSchedule;
     public Collection $areas;
+    public Collection $roles;
 
     public function __construct($model)
     {

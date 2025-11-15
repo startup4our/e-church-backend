@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Enums\ScheduleType;
+use App\Enums\ScheduleStatus;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -20,11 +21,13 @@ class Schedule extends Model
         'observation',
         'type',
         'approved',
+        'status',
         'user_creator'
     ];
 
     protected $casts = [
         'type' => ScheduleType::class,
+        'status' => ScheduleStatus::class,
         'approved' => 'boolean',
         'start_date' => 'datetime',
         'end_date' => 'datetime',

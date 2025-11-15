@@ -3,6 +3,7 @@
 namespace App\Models\DTO;
 
 use App\Enums\ScheduleType;
+use App\Enums\ScheduleStatus;
 use App\Enums\UserScheduleStatus;
 use ReflectionClass;
 use ReflectionProperty;
@@ -17,7 +18,8 @@ class ScheduleDTO
     public ?string $end_date;
     public ?string $observation;
     public ScheduleType $type;
-    public ?UserScheduleStatus $status;
+    public ?ScheduleStatus $status;
+    public ?UserScheduleStatus $userStatus;
     public bool $minhaEscala;
     public string $created_at;
 

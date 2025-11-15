@@ -222,9 +222,50 @@ class ChatController extends Controller
             }
 
             $chats = $this->service->getChatsForUser($userId);
+            
+            // Filtrar chats de escalas não publicadas
+            // Primeiro, coletar IDs de chats de escalas
+            $scaleChatIds = [];
+            foreach ($chats as $chatDTO) {
+                if (isset($chatDTO->chat) && $chatDTO->chat->chatable_type === \App\Enums\ChatType::SCALE->value) {
+                    $scaleChatIds[] = $chatDTO->chat->id;
+                }
+            }
+            
+            // Buscar todos os chats de escalas de uma vez
+            $scaleChats = [];
+            if (!empty($scaleChatIds)) {
+                $scaleChats = \App\Models\Chat::whereIn('id', $scaleChatIds)
+                    ->pluck('chatable_id', 'id')
+                    ->toArray();
+            }
+            
+            // Buscar status das escalas
+            $scheduleIds = array_values($scaleChats);
+            $activeSchedules = [];
+            if (!empty($scheduleIds)) {
+                $activeSchedules = \App\Models\Schedule::whereIn('id', $scheduleIds)
+                    ->where('status', \App\Enums\ScheduleStatus::ACTIVE)
+                    ->pluck('id')
+                    ->toArray();
+            }
+            
+            // Filtrar chats
+            $filteredChats = $chats->filter(function ($chatDTO) use ($scaleChats, $activeSchedules) {
+                if (isset($chatDTO->chat) && $chatDTO->chat->chatable_type === \App\Enums\ChatType::SCALE->value) {
+                    $chatId = $chatDTO->chat->id;
+                    if (isset($scaleChats[$chatId])) {
+                        $scheduleId = $scaleChats[$chatId];
+                        return in_array($scheduleId, $activeSchedules);
+                    }
+                    return false;
+                }
+                return true;
+            });
+            
             return response()->json([
                 'success' => true,
-                'data' => $chats
+                'data' => $filteredChats->values()
             ]);
         } catch (\Illuminate\Validation\ValidationException $e) {
             Log::warning("Get chats validation failed: " . json_encode($e->errors()));
@@ -262,6 +303,18 @@ class ChatController extends Controller
                     ErrorCode::PERMISSION_DENIED,
                     userMessage: 'Você não tem permissão para visualizar chats'
                 );
+            }
+
+            // Verificar se é chat de escala e se a escala está ativa
+            $chatModel = $this->service->getById($chat_id);
+            if ($chatModel->chatable_type === \App\Enums\ChatType::SCALE->value) {
+                $schedule = \App\Models\Schedule::find($chatModel->chatable_id);
+                if ($schedule && $schedule->status !== \App\Enums\ScheduleStatus::ACTIVE) {
+                    throw new AppException(
+                        ErrorCode::PERMISSION_DENIED,
+                        userMessage: 'O chat desta escala só está disponível quando a escala estiver publicada'
+                    );
+                }
             }
 
             $chat = $this->service->getChatForUserById($userId, $chat_id);
