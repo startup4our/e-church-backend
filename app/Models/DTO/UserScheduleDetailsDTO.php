@@ -12,6 +12,7 @@ class UserScheduleDetailsDTO
     public string $name;
     public string $email;
     public ?string $photo_path;
+    public ?string $photo_url; // Signed URL for immediate use
     public ?string $birthday;
     public ?UserScheduleStatus $statusSchedule;
     public ?string $area;
