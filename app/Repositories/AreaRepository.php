@@ -73,4 +73,12 @@ class AreaRepository
             UserArea::where('user_id', $userId)->pluck('area_id')
         )->get();
     }
+
+    public function getUserAreasWithRoles(int $userId): Collection
+    {
+        return Area::whereIn(
+            'id',
+            UserArea::where('user_id', $userId)->pluck('area_id')
+        )->with('roles')->get();
+    }
 }
