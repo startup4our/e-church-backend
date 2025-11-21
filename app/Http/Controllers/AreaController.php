@@ -292,6 +292,41 @@ class AreaController extends Controller
         }
     }
 
+    /**
+     * Get areas with roles for the authenticated user
+     * Returns only areas that the user belongs to, with their roles
+     * 
+     * @return \Illuminate\Http\JsonResponse
+     */
+    public function getUserAreasWithRoles()
+    {
+        $user = Auth::user();
+        Log::info("User [{$user->id}] requested their areas with roles");
+        
+        try {
+            // Get areas with roles for the authenticated user
+            $areas = $this->areaService->getUserAreasWithRoles($user->id);
+            
+            // Transform to DTOs
+            $areasWithRoles = $areas->map(function ($area) {
+                return (new AreaWithRolesDTO($area))->toArray();
+            });
+            
+            Log::info("Retrieved " . $areasWithRoles->count() . " areas with roles for user [{$user->id}]");
+            
+            return response()->json([
+                'success' => true,
+                'data' => $areasWithRoles
+            ]);
+        } catch (\Exception $e) {
+            Log::error("Failed to retrieve user areas with roles for user [{$user->id}]: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao carregar suas áreas e funções'
+            );
+        }
+    }
+
     public function addUserToArea(Request $request, string $userId)
     {
         $user = Auth::user();

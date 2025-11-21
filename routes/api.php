@@ -65,6 +65,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::post('areas/{userId}/add-user', [AreaController::class, 'addUserToArea']);
     Route::delete('areas/{userId}/remove-user/{areaId}', [AreaController::class, 'removeUserFromArea']);
     Route::get('areas-with-roles', [AreaController::class, 'getAreasWithRoles']);
+    Route::get('my-areas-with-roles', [AreaController::class, 'getUserAreasWithRoles']);
     Route::get('areas/{id}/roles', [AreaController::class, 'getRoles']);
     Route::put('areas/{id}/roles', [AreaController::class, 'updateRoles']);
 
