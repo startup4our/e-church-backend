@@ -55,10 +55,11 @@ class UserScheduleRepository
 
         $schedules = Schedule::with('userSchedules')
             ->join('users', 'schedule.user_creator', '=', 'users.id')
-            ->where('schedule.approved', true) // Apenas escalas aprovadas
-            ->where('users.church_id', $churchId) // Filtrar por church_id do usuário autenticado
+            ->where('schedule.approved', true)
+            ->where('schedule.status', '!=', \App\Enums\ScheduleStatus::DELETED->value)
+            ->where('users.church_id', $churchId)
             ->select('schedule.*')
-            ->orderBy('schedule.created_at', 'desc') // Ordenar por data de criação (mais recentes primeiro)
+            ->orderBy('schedule.created_at', 'desc')
             ->get();
 
         $schedules->each(function ($schedule) {
@@ -86,8 +87,9 @@ class UserScheduleRepository
             ->whereHas('userSchedules', function ($query) use ($userId) {
                 $query->where('user_id', $userId);
             })
-            ->where('approved', true) // Apenas escalas aprovadas
-            ->orderBy('created_at', 'desc') // Ordenar por data de criação (mais recentes primeiro)
+            ->where('approved', true)
+            ->where('status', '!=', \App\Enums\ScheduleStatus::DELETED->value)
+            ->orderBy('created_at', 'desc')
             ->get();
 
         $schedules->each(function ($schedule) use ($userId) {
