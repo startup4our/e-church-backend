@@ -33,6 +33,8 @@ use App\Services\Interfaces\ILinkService;
 use App\Services\Interfaces\IRecordingService;
 use App\Services\Interfaces\IScheduleService;
 use App\Services\Interfaces\IUserScheduleService;
+use App\Services\Interfaces\IScheduleTemplateService;
+use App\Services\Interfaces\IBulkScheduleService;
 use App\Services\Interfaces\IStorageService;
 use App\Services\Interfaces\IInviteService;
 use App\Services\LinkService;
@@ -40,6 +42,8 @@ use App\Services\RecordingService;
 use App\Services\SongService;
 use App\Services\RoleService;
 use App\Services\ScheduleService;
+use App\Services\ScheduleTemplateService;
+use App\Services\BulkScheduleService;
 use App\Services\StorageService;
 use App\Services\UserScheduleService;
 use App\Services\InviteService;
@@ -71,6 +75,8 @@ class AppServiceProvider extends ServiceProvider
         $this->app->bind(IUserApprovalService::class, UserApprovalService::class);
         $this->app->bind(IHandoutService::class, HandoutService::class);
         $this->app->bind(IUserRoleService::class, UserRoleService::class);
+        $this->app->bind(IScheduleTemplateService::class, ScheduleTemplateService::class);
+        $this->app->bind(IBulkScheduleService::class, BulkScheduleService::class);
     }
 
     /**
