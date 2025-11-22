@@ -110,6 +110,7 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     // User profile routes
     Route::get('users/profile', [UserController::class, 'profile']);
     Route::put('users/profile', [UserController::class, 'updateProfile']);
+    Route::post('users/fcm-token', [UserController::class, 'updateFcmToken']);
 
     // User management routes
     Route::get('users/by-church', [UserController::class, 'getUsersByChurch']);

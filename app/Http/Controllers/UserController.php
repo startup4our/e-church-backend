@@ -553,4 +553,45 @@ class UserController extends Controller
             );
         }
     }
+
+    public function updateFcmToken(Request $request)
+    {
+        try {
+            $user = Auth::user();
+            
+            if (!$user) {
+                throw new AppException(
+                    ErrorCode::UNAUTHORIZED,
+                    userMessage: 'Usuário não autenticado'
+                );
+            }
+
+            $request->validate([
+                'fcm_token' => 'required|string',
+            ]);
+
+            $user->fcm_token = $request->fcm_token;
+            $user->save();
+
+            Log::info("FCM token updated for user", [
+                'user_id' => $user->id,
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'FCM token atualizado com sucesso'
+            ]);
+        } catch (\Illuminate\Validation\ValidationException $e) {
+            throw new AppException(
+                ErrorCode::VALIDATION_ERROR,
+                details: $e->errors()
+            );
+        } catch (\Exception $e) {
+            Log::error("Failed to update FCM token: " . $e->getMessage());
+            throw new AppException(
+                ErrorCode::INTERNAL_SERVER_ERROR,
+                userMessage: 'Erro ao atualizar FCM token'
+            );
+        }
+    }
 }
