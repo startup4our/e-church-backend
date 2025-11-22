@@ -38,10 +38,10 @@ class ScheduleController extends Controller
         }
     }
 
-    public function show(int $id)
+    public function show($id)
     {
         try {
-            $schedule = $this->scheduleService->getById($id);
+            $schedule = $this->scheduleService->getById((int) $id);
             return response()->json([
                 'success' => true,
                 'data' => $schedule
@@ -102,7 +102,7 @@ class ScheduleController extends Controller
         }
     }
 
-    public function update(Request $request, int $id)
+    public function update(Request $request, $id)
     {
         try {
             $data = $request->validate([
@@ -117,7 +117,7 @@ class ScheduleController extends Controller
                 'user_creator' => 'sometimes|integer|exists:users,id'
             ]);
 
-            $schedule = $this->scheduleService->update($id, $data);
+            $schedule = $this->scheduleService->update((int) $id, $data);
             return response()->json([
                 'success' => true,
                 'data' => $schedule
@@ -135,10 +135,10 @@ class ScheduleController extends Controller
         }
     }
 
-    public function destroy(int $id)
+    public function destroy($id)
     {
         try {
-            $this->scheduleService->delete($id);
+            $this->scheduleService->delete((int) $id);
             return response()->json([
                 'success' => true,
                 'data' => null
@@ -151,9 +151,11 @@ class ScheduleController extends Controller
         }
     }
 
-    public function generate(Request $request, int $scheduleId)
+    public function generate(Request $request, $scheduleId)
     {
         try {
+            $scheduleId = (int) $scheduleId;
+            
             $request->validate([
                 'user_id' => 'required|integer',
                 'areas' => 'required|array|min:1',
@@ -236,9 +238,11 @@ class ScheduleController extends Controller
         }
     }
 
-    public function publish(Request $request, int $scheduleId)
+    public function publish(Request $request, $scheduleId)
     {
         try {
+            $scheduleId = (int) $scheduleId;
+            
             $request->validate([
                 'user_id' => 'required|integer',
             ]);

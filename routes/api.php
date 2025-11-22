@@ -19,6 +19,8 @@ use App\Http\Controllers\PermissionController;
 use App\Http\Controllers\RecordingController;
 use App\Http\Controllers\RoleController;
 use App\Http\Controllers\ScheduleController;
+use App\Http\Controllers\ScheduleTemplateController;
+use App\Http\Controllers\BulkScheduleController;
 use App\Http\Controllers\SongController;
 use App\Http\Controllers\UnavailabilityController;
 use App\Http\Controllers\UserApprovalController;
@@ -139,6 +141,18 @@ Route::prefix('v1')->middleware(['auth:api'])->group(function () {
     Route::post('/handouts', [HandoutsController::class, 'store']);         // Cria novo handout
     Route::put('/handouts/{id}', [HandoutsController::class, 'update']);    // Atualiza handout
     Route::delete('/handouts/{id}', [HandoutsController::class, 'destroy']); // Inativa handout
+
+    // Schedule Templates routes
+    Route::get('schedule-templates', [ScheduleTemplateController::class, 'index']);
+    Route::post('schedule-templates', [ScheduleTemplateController::class, 'store']);
+    Route::get('schedule-templates/{id}', [ScheduleTemplateController::class, 'show']);
+    Route::put('schedule-templates/{id}', [ScheduleTemplateController::class, 'update']);
+    Route::delete('schedule-templates/{id}', [ScheduleTemplateController::class, 'destroy']);
+
+    // Bulk Schedules routes
+    Route::post('schedules/bulk', [BulkScheduleController::class, 'createBulk']);
+    Route::get('schedules/bulk', [BulkScheduleController::class, 'getUserBatches']);
+    Route::get('schedules/bulk/{batchId}', [BulkScheduleController::class, 'getBatchStatus']);
 });
 
 /*
