@@ -57,6 +57,13 @@ class AuthController extends Controller
             }
 
             $user = Auth::user();
+            
+            // Salvar FCM token se fornecido
+            if ($request->has('fcm_token') && !empty($request->fcm_token)) {
+                $user->fcm_token = $request->fcm_token;
+                $user->save();
+                Log::info("FCM token updated on login", ['user_id' => $user->id]);
+            }
 
             // Get user permission
             $permissions = $this->permissionService->getUserPermissions($user->id);

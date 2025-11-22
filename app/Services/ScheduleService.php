@@ -3,6 +3,9 @@
 namespace App\Services;
 
 use App\Enums\ChatType;
+use App\Jobs\SendEmailNotificationJob;
+use App\Jobs\SendPushNotificationJob;
+use App\Mail\SchedulePublishedMail;
 use App\Models\Schedule;
 use App\Repositories\ChatRepository;
 use App\Repositories\ScheduleRepository;
@@ -91,22 +94,38 @@ class ScheduleService implements IScheduleService
         
         Log::info("Found {$participants->count()} participants for schedule [{$scheduleId}]");
         
-        // Enviar email para cada participante
+        // Disparar jobs assíncronos para email e push notification
         foreach ($participants as $userSchedule) {
-            if ($userSchedule->user && $userSchedule->user->email) {
-                try {
-                    \Illuminate\Support\Facades\Mail::to($userSchedule->user->email)
-                        ->send(new \App\Mail\SchedulePublishedMail($schedule));
-                    Log::info("Published schedule email sent", [
-                        'schedule_id' => $scheduleId,
-                        'user_id' => $userSchedule->user->id,
-                        'email' => $userSchedule->user->email
-                    ]);
-                } catch (\Exception $e) {
-                    Log::error("Failed to send published schedule email", [
-                        'schedule_id' => $scheduleId,
-                        'user_id' => $userSchedule->user->id,
-                        'error' => $e->getMessage()
+            if ($userSchedule->user) {
+                $user = $userSchedule->user;
+                
+                // Disparar job de email
+                if ($user->email) {
+                    SendEmailNotificationJob::dispatch(
+                        $user->email,
+                        new SchedulePublishedMail($schedule),
+                        "schedule_published:schedule_id={$scheduleId},user_id={$user->id}"
+                    );
+                }
+                
+                // Disparar job de push notification
+                if ($user->fcm_token) {
+                    SendPushNotificationJob::dispatch(
+                        $user->fcm_token,
+                        'Nova Escala Publicada',
+                        "A escala '{$schedule->name}' foi publicada. Você está escalado!",
+                        [
+                            'type' => 'schedule_published',
+                            'schedule_id' => $schedule->id,
+                            'schedule_name' => $schedule->name,
+                        ],
+                        "schedule_published:schedule_id={$scheduleId}",
+                        $user->id
+                    );
+                } else {
+                    Log::debug("User has no FCM token, skipping push notification", [
+                        'user_id' => $user->id,
+                        'schedule_id' => $scheduleId
                     ]);
                 }
             }
